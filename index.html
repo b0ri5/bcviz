@@ -41,13 +41,13 @@ function drawChart() {
       
       console.log("initial checkpoint");
       var counter = 0;
-      for (var entry in data) {
+      for (var i in data) {
         counter++;
         if (counter < 5) {
-          console.log(entry);
+          console.log(data[i]);
         }
         if (entry[ACTIVITY] === "Sleep") {
-          console.log(entry);
+          console.log(data[i]);
           console.log("checkpoint");
         }
       }
