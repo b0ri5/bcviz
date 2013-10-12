@@ -13,6 +13,8 @@ var END_TIME = "End Time";
 var ACTIVITY = "Activity";
 var DURATION = "Duration (min)";
 
+var TLDATA;
+
 function drawChart() {
   var container = document.getElementById('example1');
 
@@ -37,17 +39,19 @@ function drawChart() {
   .done(function( data ) {
     if ( console && console.log ) {
       console.log( "Sample of data:", data.slice( 0, 100 ) );
+      var maradata = $csv.toObjects(data);
       console.log('toObjects', $.csv.toObjects(data));
       
+      TLDATA = maradata;
       console.log("initial checkpoint");
       var counter = 0;
-      for (var i in data) {
+      for (var obj in maradata) {
         counter++;
-        if (counter < 5) {
-          console.log(data[i]);
-        }
-        if (entry[ACTIVITY] === "Sleep") {
-          console.log(data[i]);
+        //if (counter < 5) {
+        //  console.log(obj[i]);
+        //}
+        if (obj[ACTIVITY] === "Sleep") {
+          console.log(obj);
           console.log("checkpoint");
         }
       }
