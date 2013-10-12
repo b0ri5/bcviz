@@ -45,14 +45,15 @@ function drawChart() {
       TLDATA = maradata;
       console.log("initial checkpoint");
       var counter = 0;
-      for (var obj in maradata) {
+      for (var i in maradata) {
         counter++;
         //if (counter < 5) {
         //  console.log(obj[i]);
         //}
-        if (obj[ACTIVITY] === "Sleep") {
-          console.log(obj);
-          console.log("checkpoint");
+        console.log(maradata[i]);
+        if (maradata[i][ACTIVITY] === "Sleep") {
+          //console.log(obj);
+          console.log("found a sleep!");
         }
       }
     }
