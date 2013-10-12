@@ -25,6 +25,15 @@ function drawChart() {
     [ 'Jefferson',  new Date(1801, 2, 3),  new Date(1809, 2, 3) ]]);
 
   chart.draw(dataTable);
+  console.log('loaded');
+  $.ajax({
+  url: "//https://rawgithub.com/b0ri5/bcviz/master/maradata.csv"
+})
+  .done(function( data ) {
+    if ( console && console.log ) {
+      console.log( "Sample of data:", data.slice( 0, 100 ) );
+    }
+  });
 }
 </script>
 </head>
