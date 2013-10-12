@@ -8,6 +8,11 @@
     google.load('visualization', '1', {'packages': ['timeline']});
 google.setOnLoadCallback(drawChart);
 
+var START_TIME = "Start Time";
+var END_TIME = "End Time";
+var ACTIVITY = "Activity";
+var DURATION = "Duration (min)";
+
 function drawChart() {
   var container = document.getElementById('example1');
 
@@ -33,6 +38,11 @@ function drawChart() {
     if ( console && console.log ) {
       console.log( "Sample of data:", data.slice( 0, 100 ) );
       console.log('toObjects', $.csv.toObjects(data));
+      for (var entry in data) {
+        if (entry[ACTIVITY] === "Sleep") {
+          console.log(entry);
+        }
+      }
     }
   });
 }
