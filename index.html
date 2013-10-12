@@ -39,7 +39,7 @@ function drawChart() {
   .done(function( data ) {
     if ( console && console.log ) {
       console.log( "Sample of data:", data.slice( 0, 100 ) );
-      var maradata = $csv.toObjects(data);
+      var maradata = $.csv.toObjects(data);
       console.log('toObjects', $.csv.toObjects(data));
       
       TLDATA = maradata;
