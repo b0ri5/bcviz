@@ -27,7 +27,7 @@ function drawChart() {
   chart.draw(dataTable);
   console.log('loaded');
   $.ajax({
-  url: "//https://rawgithub.com/b0ri5/bcviz/master/maradata.csv"
+  url: "//rawgithub.com/b0ri5/bcviz/master/maradata.csv"
 })
   .done(function( data ) {
     if ( console && console.log ) {
