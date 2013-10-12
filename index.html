@@ -32,8 +32,6 @@ function drawChart() {
   .done(function( data ) {
     if ( console && console.log ) {
       console.log( "Sample of data:", data.slice( 0, 100 ) );
-      //console.log('toArray', $.csv.toArray(data));
-      console.log('toArrays', $.csv.toArrays(data));
       console.log('toObjects', $.csv.toObjects(data));
     }
   });
