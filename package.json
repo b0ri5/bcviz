@@ -1,0 +1,9 @@
+{
+  "name": "bcviz",
+  "devDependencies": {
+    "mocha": "git://github.com/visionmedia/mocha.git"
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/mocha $(find . -name '*_test.js')"
+  }
+}
