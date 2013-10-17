@@ -3,6 +3,6 @@ var bcDateTimeToDate = function(bcDateTime) {
 }
 
 if(typeof exports == 'undefined'){
-    var exports = this['mymodule'] = {};
+    var exports = this['bcviz'] = {};
 }
 exports.bcDateTimeToDate = bcDateTimeToDate;
