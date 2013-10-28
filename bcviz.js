@@ -9,6 +9,28 @@ var bcDateTimeToDate = function(bcDateTime) {
   return bcDateTime.substring(0, 10);
 }
 
+var splitIntervalAtMidnight = function(interval) {
+  var startEpochDays = Math.floor(interval.start.getTime() / MILLIS_PER_DAY);
+  var endEpochDays = Math.floor(interval.end.getTime() / MILLIS_PER_DAY);
+  if (startEpochDays == endEpochDays) {
+    return new Array(interval);
+  }
+  if (endEpochDays - startEpochDays == 1) {
+    var startEnd = new Date(interval.start);
+    startEnd.setHours(23);
+    startEnd.setMinutes(59);
+    startEnd.setSeconds(59);
+    startEnd.setMilliseconds(999);
+    var endStart = new Date(interval.end);
+    endStart.setHours(0);
+    endStart.setMinutes(0);
+    endStart.setSeconds(0);
+    endStart.setMilliseconds(0);
+    return new Array({start: interval.start, end: startEnd},
+		     {start: endStart, end: interval.end});
+  }
+}
+
 var splitIntervalOnDay = function(start, end, callback) {
   var startDay = start.getTime() / MILLIS_PER_DAY;
   var endDay = start.getTime() / MILLIS_PER_DAY;
@@ -29,7 +51,7 @@ var dateToTime = function(date) {
   return timeOfDay;
 }
 
-var addCsvEntryToTable(maradata, dataTable) {
+var addCsvEntryToTable = function(maradata, dataTable) {
   var activity = maradata[ACTIVITY];
   if (activity !== 'Sleep') {
     return;
@@ -54,3 +76,4 @@ exports.bcDateTimeToDate = bcDateTimeToDate;
 exports.splitIntervalOnDay = splitIntervalOnDay;
 exports.dateToTime = dateToTime;
 exports.addCsvEntryToTable = addCsvEntryToTable;
+exports.splitIntervalAtMidnight = splitIntervalAtMidnight;
