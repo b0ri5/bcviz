@@ -15,8 +15,6 @@
   
 </script>
 <script type="text/javascript">
-  console.log(bcviz
-      .bcDateTimeToDate("2013-10-10 and other stuff that shouldn't show up"));
   google.load('visualization', '1', {
     'packages' : [ 'timeline' ]
   });
@@ -24,9 +22,7 @@
 
   function drawChart() {
     var container = document.getElementById('example1');
-
     var chart = new google.visualization.Timeline(container);
-
     var dataTable = new google.visualization.DataTable();
 
     dataTable.addColumn({
@@ -48,35 +44,15 @@
 
     var csvReadDone = function(data) {
       var maradata = $.csv.toObjects(data);
-      for ( var i in maradata) {
-        if (maradata[i][ACTIVITY] !== "Sleep") {
-          continue;
-        }
-
+      for (var i in maradata) {
         bcviz.addCsvEntryToTable(maradata[i], dataTable);
-
-        // TODO(eerbiceanu): Move this functionality to addCsvEntryToTable.
-        // It's currently broken.
-        bcviz.splitIntervalOnDay(new Date(maradata[i][START_TIME]), new Date(
-            maradata[i][END_TIME]), function(start, end) {
-          var startTime = bcviz.dateToTime(start);
-          var endTime = bcviz.dateToTime(end);
-          if (startTime > endTime) {
-            endTime = new Date(endTime.getMilliseconds() + MILLIS_PER_DAY);
-          }
-          dataTable.addRow([ bcviz.bcDateTimeToDate(start),
-              maradata[i][ACTIVITY], startTime, endTime ]);
-        });
       }
-    }
-
-    console.log(csvReadDone);
+      chart.draw(dataTable);
+    };
 
     $.ajax({
       url : "https://rawgithub.com/b0ri5/bcviz/master/maradata.csv"
     }).done(csvReadDone);
-
-    chart.draw(dataTable);
   }
 </script>
 </head>

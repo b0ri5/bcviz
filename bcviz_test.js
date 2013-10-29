@@ -2,9 +2,10 @@ var bcviz = require('./bcviz');
 var assert = require('assert');
 
 describe('bcviz', function(){
-  describe('#bcDateTimeToDate()', function(){
+  describe('#dateToDisplayDate()', function(){
     it('should only return the date', function(){
-      assert.equal("2013-10-10", bcviz.bcDateTimeToDate("2013-10-10 10:46"));
+      assert.equal("2013-10-10", bcviz.dateToDisplayDate(new Date("2013-10-10 23:59")));
+      assert.equal("2013-10-11", bcviz.dateToDisplayDate(new Date("2013-10-11 00:00")));
     })
   })
 })

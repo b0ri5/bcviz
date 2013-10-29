@@ -5,8 +5,8 @@ var DURATION = "Duration (min)";
 
 var MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
 
-var bcDateTimeToDate = function(bcDateTime) {
-  return bcDateTime.substring(0, 10);
+var dateToDisplayDate = function(date) {
+  return date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
 }
 
 var splitIntervalAtMidnight = function(interval) {
@@ -56,23 +56,18 @@ var addCsvEntryToTable = function(maradata, dataTable) {
   if (activity !== 'Sleep') {
     return;
   }
-  var startTime = maradata[START_TIME];
-  var endTime = maradata[END_TIME];
+  var startDate = new Date(maradata[START_TIME]);
+  var endDate = new Date(maradata[END_TIME]);
   
-  var startDate;
-  var endDate;
-  // TODO(eerbiceanu): set startDate and endDate
-  // and do anything else that needs to be done here.
-  
-  dataTable.addRow([bcviz.bcDateTimeToDate(startTime),
-                    activity,
-                    startDate, endDate])
+  var dispalyDate = bcviz.dateToDisplayDate(startDate);
+  console.log("For " + dispalyDate + " adding " + activity + " for " + startDate + " until " + endDate);
+  dataTable.addRow([dispalyDate, activity, startDate, endDate]);
 }
 
 if (typeof exports == 'undefined') {
   var exports = this['bcviz'] = {};
 }
-exports.bcDateTimeToDate = bcDateTimeToDate;
+exports.dateToDisplayDate = dateToDisplayDate;
 exports.splitIntervalOnDay = splitIntervalOnDay;
 exports.dateToTime = dateToTime;
 exports.addCsvEntryToTable = addCsvEntryToTable;
