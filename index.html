@@ -1,112 +1,63 @@
 <html>
 <head>
-  <script type="text/javascript" src="https://code.jquery.com/jquery-latest.min.js"></script>
-  <script type="text/javascript" src="https://jquery-csv.googlecode.com/git/src/jquery.csv.js"></script>
-  <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-  <script type="text/javascript" src="./bcviz.js"></script>
-  <script type="text/javascript">
-    console.log(bcviz.bcDateTimeToDate("2013-10-10 and other stuff that shouldn't show up"));
-    google.load('visualization', '1', {'packages': ['timeline']});
-google.setOnLoadCallback(drawChart);
+<script type="text/javascript"
+  src="https://code.jquery.com/jquery-latest.min.js">
+  
+</script>
+<script type="text/javascript"
+  src="https://jquery-csv.googlecode.com/git/src/jquery.csv.js">
+  
+</script>
+<script type="text/javascript" src="https://www.google.com/jsapi">
+  
+</script>
+<script type="text/javascript" src="./bcviz.js">
+  
+</script>
+<script type="text/javascript">
+  google.load('visualization', '1', {
+    'packages' : [ 'timeline' ]
+  });
+  google.setOnLoadCallback(drawChart);
 
-var START_TIME = "Start Time";
-var END_TIME = "End Time";
-var ACTIVITY = "Activity";
-var DURATION = "Duration (min)";
+  function drawChart() {
+    var container = document.getElementById('example1');
+    var chart = new google.visualization.Timeline(container);
+    var dataTable = new google.visualization.DataTable();
 
-var TLDATA;
-var MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
+    dataTable.addColumn({
+      type : 'string',
+      id : 'Day'
+    });
+    dataTable.addColumn({
+      type : 'string',
+      id : 'Activity'
+    });
+    dataTable.addColumn({
+      type : 'date',
+      id : 'Start'
+    });
+    dataTable.addColumn({
+      type : 'date',
+      id : 'End'
+    });
 
-function drawChart() {
-  var container = document.getElementById('example1');
-
-  var chart = new google.visualization.Timeline(container);
-
-  var dataTable = new google.visualization.DataTable();
-
-  dataTable.addColumn({ type: 'string', id: 'Day' });
-  dataTable.addColumn({ type: 'string', id: 'Activity' });
-  dataTable.addColumn({ type: 'date', id: 'Start' });
-  dataTable.addColumn({ type: 'date', id: 'End' });
-
-//  dataTable.addRow(['2013-10-10', 'Sleep', new Date(2013, 10, 10, 4, 7), new Date(2013, 10, 10, 9, 7)]);
-//  dataTable.addRow(['2013-10-09', 'Sleep', new Date(2013, 10, 9, 15, 6), new Date(2013, 10, 9, 15, 39)]);
-  console.log(Date.parse("2013-10-10"));
-
-  var splitIntervalOnDay = function(start, end, callback) {  
-    var startDay = start.getTime() / MILLIS_PER_DAY;
-		var endDay = start.getTime() / MILLIS_PER_DAY;
-		if (startDay === endDay) {
-		  callback(start, end);
-		} else if (endDay - startDay == 1) {
-		  callback(Date.parse(start), Date.parse(endDay));
-		  callback(Date.parse(endDay), Date.parse(end));
-    } else {
-		  console.log('Too many days!');
-		}
-  }
-	var dateToDayString = function(date) {
-	  return date.toISOString().substring(0, 10);
-	}
-	var dateToTime = function(date) {
-	  console.log(date);
-	  var timeOfDay = new Date(date.getTime() % MILLIS_PER_DAY);
-		console.log(timeOfDay);
-		return timeOfDay;
-	}
-
-//  dataTable.addRows([
- //   [ 'Washington', new Date(1789, 3, 29), new Date(1797, 2, 3) ],
-  //  [ 'Adams',      new Date(1797, 2, 3),  new Date(1801, 2, 3) ],
-   // [ 'Jefferson',  new Date(1801, 2, 3),  new Date(1809, 2, 3) ]]);
-
-  //chart.draw(dataTable);
-  console.log('loaded');
-  $.ajax({
-  url: "https://rawgithub.com/b0ri5/bcviz/master/maradata.csv"
-})
-  .done(function( data ) {
-    if ( console && console.log ) {
-      console.log( "Sample of data:", data.slice( 0, 100 ) );
+    var csvReadDone = function(data) {
       var maradata = $.csv.toObjects(data);
-      console.log('toObjects', $.csv.toObjects(data));
-      
-      TLDATA = maradata;
-      console.log("initial checkpoint");
-      var counter = 0;
       for (var i in maradata) {
-        counter++;
-        //if (counter < 5) {
-        //  console.log(obj[i]);
-        //}
-        console.log(maradata[i]);
-        if (maradata[i][ACTIVITY] === "Sleep") {
-          //console.log(obj);
-          console.log("found a sleep!");
-					splitIntervalOnDay(
-									new Date(maradata[i][START_TIME]),
-									new Date(maradata[i][END_TIME]),
-									function(start, end) {
-									  var startTime = dateToTime(start);
-										var endTime = dateToTime(end);
-										if (startTime > endTime) {
-										  endTime = new Date(endTime.getMilliseconds() + MILLIS_PER_DAY);
-										}
-										dataTable.addRow([
-														dateToDayString(start),
-														maradata[i][ACTIVITY],
-														startTime,
-														endTime]);
-									});
-        }
+        bcviz.addCsvEntryToTable(maradata[i], dataTable);
       }
       chart.draw(dataTable);
-    }
-  });
-}
+    };
+
+    $.ajax({
+      url : "./maradata_october.csv"
+    }).done(csvReadDone);
+  }
 </script>
 </head>
 <body>
-<div id="example1" style="width: 900px; height: 1800px;"></div>
+  <div id="example1" style="width: 900px; height: 1800px;"></div>
 </body>
 </html>
+
