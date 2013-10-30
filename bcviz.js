@@ -10,12 +10,17 @@ var dateToDisplayDate = function(date) {
 }
 
 var splitIntervalAtMidnight = function(interval) {
-  var startEpochDays = Math.floor(interval.start.getTime() / MILLIS_PER_DAY);
-  var endEpochDays = Math.floor(interval.end.getTime() / MILLIS_PER_DAY);
-  if (startEpochDays == endEpochDays) {
+  var dayAfterStart = new Date(interval.start.getTime() + MILLIS_PER_DAY);
+  dayAfterStart.setHours(0);
+  dayAfterStart.setMinutes(0);
+  dayAfterStart.setMilliseconds(0);
+  var endDay = new Date(interval.end);
+  endDay.setHours(0);
+  endDay.setMinutes(0);
+  endDay.setMilliseconds(0);
+  if (dayAfterStart.getTime() !== endDay.getTime()) {
     return new Array(interval);
-  }
-  if (endEpochDays - startEpochDays == 1) {
+  } else {
     var startEnd = new Date(interval.start);
     startEnd.setHours(23);
     startEnd.setMinutes(59);
@@ -27,20 +32,7 @@ var splitIntervalAtMidnight = function(interval) {
     endStart.setSeconds(0);
     endStart.setMilliseconds(0);
     return new Array({start: interval.start, end: startEnd},
-		     {start: endStart, end: interval.end});
-  }
-}
-
-var splitIntervalOnDay = function(start, end, callback) {
-  var startDay = start.getTime() / MILLIS_PER_DAY;
-  var endDay = start.getTime() / MILLIS_PER_DAY;
-  if (startDay === endDay) {
-    callback(start, end);
-  } else if (endDay - startDay == 1) {
-    callback(Date.parse(start), Date.parse(endDay));
-    callback(Date.parse(endDay), Date.parse(end));
-  } else {
-    console.log('Too many days!');
+	      {start: endStart, end: interval.end});
   }
 }
 
@@ -58,17 +50,40 @@ var addCsvEntryToTable = function(maradata, dataTable) {
   }
   var startDate = new Date(maradata[START_TIME]);
   var endDate = new Date(maradata[END_TIME]);
-  
-  var dispalyDate = bcviz.dateToDisplayDate(startDate);
-  console.log("For " + dispalyDate + " adding " + activity + " for " + startDate + " until " + endDate);
-  dataTable.addRow([dispalyDate, activity, startDate, endDate]);
+  var interval = {start: startDate, end: endDate};
+  var splitIntervals = bcviz.splitIntervalAtMidnight(interval);
+  console.log("For " + startDate + " to " + endDate + " we have " + splitIntervals.length + " subintervals");
+  console.log(splitIntervals);
+  for (var i = 0; i < splitIntervals.length; i++) {
+    var subinterval = splitIntervals[i];
+    console.log(subinterval);
+    var displayDate = bcviz.dateToDisplayDate(subinterval.start);
+    var startTime = bcviz.stripToHoursAndMinutes(subinterval.start);
+    var endTime = bcviz.stripToHoursAndMinutes(subinterval.end);
+    console.log("For " + displayDate + " adding " + startTime + " to " + endTime + 
+        "which came from " + startDate + " to " + endDate);
+    if (endTime < startTime) {
+      console.log("Ignoring this one, Greg probably input it badly");
+      continue;
+    }
+    dataTable.addRow([displayDate, activity, startTime, endTime]);
+  }
+
+}
+
+var normalizeToHoursAndMinutes = function(date) {
+  var normalized = new Date(date);
+  normalized.setFullYear(2013);
+  normalized.setMonth(7);
+  normalized.setDate(29);
+  return normalized;
 }
 
 if (typeof exports == 'undefined') {
   var exports = this['bcviz'] = {};
 }
 exports.dateToDisplayDate = dateToDisplayDate;
-exports.splitIntervalOnDay = splitIntervalOnDay;
 exports.dateToTime = dateToTime;
 exports.addCsvEntryToTable = addCsvEntryToTable;
 exports.splitIntervalAtMidnight = splitIntervalAtMidnight;
+exports.stripToHoursAndMinutes = normalizeToHoursAndMinutes;

@@ -39,3 +39,42 @@ describe('bcviz', function(){
     })
   })
 })
+
+describe('bcviz', function(){
+  describe('#splitIntervalAtMidnight()', function(){
+    it('does not split if same day', function(){
+      var interval = {start: new Date("2013-10-05 16:14"), end: new Date("2013-10-05 18:06")};
+      var intervals = bcviz.splitIntervalAtMidnight(interval);
+      assert.equal(1, intervals.length);
+      assert.deepEqual(intervals[0], interval);
+    })
+  })
+})
+
+describe('bcviz', function(){
+  describe('#splitIntervalAtMidnight()', function(){
+    it('splits if different days', function(){
+      var interval = {start: new Date("2013-10-05 23:07"), end: new Date("2013-10-06 00:24")};
+      var intervals = bcviz.splitIntervalAtMidnight(interval);
+      assert.equal(2, intervals.length);
+    })
+  })
+})
+
+
+describe('bcviz', function(){
+  describe('#stripToHoursAndMinutes()', function(){
+    it('normalizes with respect to year/month/day', function(){
+      assert.deepEqual(
+          bcviz.stripToHoursAndMinutes(new Date("2013-10-12 12:34")),
+          bcviz.stripToHoursAndMinutes(new Date("2013-10-10 12:34")));
+      assert.deepEqual(
+          bcviz.stripToHoursAndMinutes(new Date("2011-10-12 12:34")),
+          bcviz.stripToHoursAndMinutes(new Date("2013-11-10 12:34")));
+      assert.notDeepEqual(
+          bcviz.stripToHoursAndMinutes(new Date("2013-10-12 12:34")),
+          bcviz.stripToHoursAndMinutes(new Date("2013-10-10 12:35")));
+      
+    })
+  })
+})
