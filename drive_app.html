@@ -31,7 +31,12 @@
           var request = gapi.client.request({
               'path': '/drive/v2/files',
               'method': 'GET',
-              'params': {'maxResults': 10}});
+              'params': {'maxResults': 10,
+                         'q': 'title contains \'Mara\''}});
+          request.execute(function(response) {
+            console.log(response);
+          });
+          
         } else {
           // No access token could be retrieved, show the button to start the authorization flow.
           authButton.style.display = 'block';
