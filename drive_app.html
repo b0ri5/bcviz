@@ -46,6 +46,7 @@
           });
         } else {
           // No access token could be retrieved, show the button to start the authorization flow.
+          var authButton = document.getElementById('authorizeButton');
           authButton.style.display = 'block';
           authButton.onclick = function() {
               gapi.auth.authorize(
@@ -58,5 +59,6 @@
     <script type="text/javascript" src="https://apis.google.com/js/client.js?onload=handleClientLoad"></script>
   </head>
   <body>
+    <input type="button" id="authorizeButton" style="display: none" value="Authorize" />
   </body>
 </html>
