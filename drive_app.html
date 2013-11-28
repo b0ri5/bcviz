@@ -35,8 +35,15 @@
                          'q': 'title contains \'Mara\' and \'0B64XK3VaP-HNd1BLUlg5RHVQQjQ\' in parents'}});
           request.execute(function(response) {
             console.log(response);
+            var accessToken = gapi.auth.getToken().access_token;
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', response.items[0].downloadUrl);
+            xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+            xhr.onload = function() {
+              console.log(xhr.responseText);
+            };
+            xhr.send();
           });
-          
         } else {
           // No access token could be retrieved, show the button to start the authorization flow.
           authButton.style.display = 'block';
