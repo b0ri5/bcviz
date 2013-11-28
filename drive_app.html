@@ -1,0 +1,64 @@
+<html>
+  <head>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+    <script type="text/javascript">
+      var CLIENT_ID = '911658691612-3h2lr0c30dhiekcdk83euqlviuqufk1r.apps.googleusercontent.com';
+      var SCOPES = 'https://www.googleapis.com/auth/drive.readonly';
+
+      /**
+       * Called when the client library is loaded to start the auth flow.
+       */
+      function handleClientLoad() {
+        window.setTimeout(checkAuth, 1);
+      }
+
+      /**
+       * Check if the current user has authorized the application.
+       */
+      function checkAuth() {
+        gapi.auth.authorize(
+            {'client_id': CLIENT_ID, 'scope': SCOPES, 'immediate': true},
+            handleAuthResult);
+      }
+
+      /**
+       * Called when authorization server replies.
+       *
+       * @param {Object} authResult Authorization result.
+       */
+      function handleAuthResult(authResult) {
+        if (authResult && !authResult.error) {
+          var request = gapi.client.request({
+              'path': '/drive/v2/files',
+              'method': 'GET',
+              'params': {'maxResults': 10,
+                         'q': 'title contains \'Mara\' and \'0B64XK3VaP-HNd1BLUlg5RHVQQjQ\' in parents'}});
+          request.execute(function(response) {
+            console.log(response);
+            var accessToken = gapi.auth.getToken().access_token;
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', response.items[0].downloadUrl);
+            xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+            xhr.onload = function() {
+              console.log(xhr.responseText);
+            };
+            xhr.send();
+          });
+        } else {
+          // No access token could be retrieved, show the button to start the authorization flow.
+          var authButton = document.getElementById('authorizeButton');
+          authButton.style.display = 'block';
+          authButton.onclick = function() {
+              gapi.auth.authorize(
+                  {'client_id': CLIENT_ID, 'scope': SCOPES, 'immediate': false},
+                  handleAuthResult);
+          };
+        }
+      }
+    </script>
+    <script type="text/javascript" src="https://apis.google.com/js/client.js?onload=handleClientLoad"></script>
+  </head>
+  <body>
+    <input type="button" id="authorizeButton" style="display: none" value="Authorize" />
+  </body>
+</html>

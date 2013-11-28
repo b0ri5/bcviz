@@ -18,11 +18,6 @@ describe('bcviz', function(){
       assert.equal(1, intervals.length);
       assert.equal(interval, intervals[0]);
     })
-  })
-})
-
-describe('bcviz', function(){
-  describe('#splitIntervalAtMidnight()', function(){
     it('splits interval on midnight', function(){
       var interval = {start: new Date("2013-10-10 10:46"), end: new Date("2013-10-11 11:30")};
       var intervals = bcviz.splitIntervalAtMidnight(interval);
@@ -37,22 +32,12 @@ describe('bcviz', function(){
       assert.deepEqual(new Date("2013-10-11 00:00"), intervals[1].start);
       assert.deepEqual(interval.end, intervals[1].end);
     })
-  })
-})
-
-describe('bcviz', function(){
-  describe('#splitIntervalAtMidnight()', function(){
     it('does not split if same day', function(){
       var interval = {start: new Date("2013-10-05 16:14"), end: new Date("2013-10-05 18:06")};
       var intervals = bcviz.splitIntervalAtMidnight(interval);
       assert.equal(1, intervals.length);
       assert.deepEqual(intervals[0], interval);
     })
-  })
-})
-
-describe('bcviz', function(){
-  describe('#splitIntervalAtMidnight()', function(){
     it('splits if different days', function(){
       var interval = {start: new Date("2013-10-05 23:07"), end: new Date("2013-10-06 00:24")};
       var intervals = bcviz.splitIntervalAtMidnight(interval);
@@ -60,7 +45,6 @@ describe('bcviz', function(){
     })
   })
 })
-
 
 describe('bcviz', function(){
   describe('#stripToHoursAndMinutes()', function(){
@@ -75,6 +59,27 @@ describe('bcviz', function(){
           bcviz.stripToHoursAndMinutes(new Date("2013-10-12 12:34")),
           bcviz.stripToHoursAndMinutes(new Date("2013-10-10 12:35")));
       
+    })
+  })
+})
+
+describe('bcviz', function(){
+  describe('#sortCsvObjectArray()', function(){
+    it('does not modify a sorted array', function(){
+      var objA = {};
+      var objB = {};
+      objA[bcviz.START_TIME] = '11/2/2013 07:20';
+      objB[bcviz.START_TIME] = '11/1/2013 07:20';
+      var csv = [objA, objB];
+      assert.deepEqual(csv, bcviz.sortCsvObjectArray(csv));
+    })
+    it('sorts an unsorted array', function(){
+      var objA = {};
+      var objB = {};
+      objA[bcviz.START_TIME] = '11/1/2013 07:20';
+      objB[bcviz.START_TIME] = '11/2/2013 07:20';
+      var csv = [objA, objB];
+      assert.deepEqual([objB, objA], bcviz.sortCsvObjectArray(csv));
     })
   })
 })
