@@ -2,25 +2,77 @@
 <head>
 <script type="text/javascript"
   src="https://code.jquery.com/jquery-latest.min.js">
-  
 </script>
+
 <script type="text/javascript"
   src="https://jquery-csv.googlecode.com/git/src/jquery.csv.js">
-  
 </script>
+
 <script type="text/javascript" src="https://www.google.com/jsapi">
-  
 </script>
-<script type="text/javascript" src="./bcviz.js">
-  
-</script>
+
+<script type="text/javascript" src="./bcviz.js"></script>
+
 <script type="text/javascript">
   google.load('visualization', '1', {
     'packages' : [ 'timeline' ]
   });
   google.setOnLoadCallback(drawChart);
 
-  function drawChart() {
+  var CLIENT_ID = '911658691612-3h2lr0c30dhiekcdk83euqlviuqufk1r.apps.googleusercontent.com';
+  var SCOPES = 'https://www.googleapis.com/auth/drive.readonly';
+
+  function handleClientLoad() {
+    window.setTimeout(checkAuth, 1);
+  }
+  
+  function checkAuth() {
+    gapi.auth.authorize(
+      {'client_id': CLIENT_ID, 'scope': SCOPES, 'immediate': true},
+        handleAuthResult);
+  }
+
+  function handleAuthResult(authResult) {
+    if (authResult && !authResult.error) {
+      var request = gapi.client.request({
+          'path': '/drive/v2/files',
+          'method': 'GET',
+          'params': {'maxResults': 10,
+                     'q': 'title contains \'Mara\' and \'0B64XK3VaP-HNd1BLUlg5RHVQQjQ\' in parents'}});
+      request.execute(function(response) {
+        console.log(response);
+        var accessToken = gapi.auth.getToken().access_token;
+        var allCsv = [];
+        for (var i = 0; i < response.items.length; i++) {
+          var xhr = new XMLHttpRequest();
+          // TODO(gtener): Make async requests.
+          xhr.open('GET', response.items[i].downloadUrl, false /* asynchronous*/ );
+          xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+          xhr.onload = function() {
+            var maradata = $.csv.toObjects(xhr.responseText);
+            console.log('Adding ' + maradata.length + ' entries');
+            allCsv = allCsv.concat(maradata);
+          };
+          xhr.send();
+        }
+        // TODO(gtener): Remove possibly duplicate entries.
+        console.log('allCsv.length == ' + allCsv.length);
+        var sortedCsvData = bcviz.sortCsvObjectArray(allCsv);
+        drawChart(sortedCsvData);
+      });
+    } else {
+      // No access token could be retrieved, show the button to start the authorization flow.
+      var authButton = document.getElementById('authorizeButton');
+      authButton.style.display = 'block';
+      authButton.onclick = function() {
+          gapi.auth.authorize(
+              {'client_id': CLIENT_ID, 'scope': SCOPES, 'immediate': false},
+              handleAuthResult);
+      };
+    }
+  }
+
+  function drawChart(sortedCsvData) {
     var container = document.getElementById('example1');
     var chart = new google.visualization.Timeline(container);
     var dataTable = new google.visualization.DataTable();
@@ -41,22 +93,19 @@
       type : 'date',
       id : 'End'
     });
-
-    var csvReadDone = function(data) {
-      var maradata = $.csv.toObjects(data);
-      for (var i = 0; i < maradata.length; i++) {
-        bcviz.addCsvEntryToTable(maradata[i], dataTable);
-      }
-      chart.draw(dataTable);
-    };
-
-    $.ajax({
-      url : "./maradata_october.csv"
-    }).done(csvReadDone);
+    for (var i = 0; i < sortedCsvData.length; i++) {
+      bcviz.addCsvEntryToTable(sortedCsvData[i], dataTable);
+    }
+    chart.draw(dataTable);
   }
 </script>
+
+<script type="text/javascript" src="https://apis.google.com/js/client.js?onload=handleClientLoad"></script>
+</script>
+
 </head>
 <body>
+  <input type="button" id="authorizeButton" style="display: none" value="Authorize" />
   <div id="example1" style="width: 900px; height: 1800px;"></div>
 </body>
 </html>

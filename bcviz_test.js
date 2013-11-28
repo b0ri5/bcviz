@@ -68,16 +68,16 @@ describe('bcviz', function(){
     it('does not modify a sorted array', function(){
       var objA = {};
       var objB = {};
-      objA[bcviz.START_TIME] = '11/1/2013 07:20';
-      objB[bcviz.START_TIME] = '11/2/2013 07:20';
+      objA[bcviz.START_TIME] = '11/2/2013 07:20';
+      objB[bcviz.START_TIME] = '11/1/2013 07:20';
       var csv = [objA, objB];
       assert.deepEqual(csv, bcviz.sortCsvObjectArray(csv));
     })
     it('sorts an unsorted array', function(){
       var objA = {};
       var objB = {};
-      objA[bcviz.START_TIME] = '11/2/2013 07:20';
-      objB[bcviz.START_TIME] = '11/1/2013 07:20';
+      objA[bcviz.START_TIME] = '11/1/2013 07:20';
+      objB[bcviz.START_TIME] = '11/2/2013 07:20';
       var csv = [objA, objB];
       assert.deepEqual([objB, objA], bcviz.sortCsvObjectArray(csv));
     })
