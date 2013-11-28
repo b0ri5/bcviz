@@ -79,11 +79,27 @@ var normalizeToHoursAndMinutes = function(date) {
   return normalized;
 }
 
+var sortCsvObjectArray = function (csv) {
+  return csv.sort(function(a, b) {
+    return new Date(a[START_TIME]).getTime() - new Date(b[START_TIME]).getTime();
+  });
+}
+
+var mergeSortedCsvObjectArrays = function(csvA, csvB) {
+  return csvA
+}
+
 if (typeof exports == 'undefined') {
   var exports = this['bcviz'] = {};
 }
+
+exports.START_TIME = START_TIME;
+
+exports.addCsvEntryToTable = addCsvEntryToTable;
 exports.dateToDisplayDate = dateToDisplayDate;
 exports.dateToTime = dateToTime;
-exports.addCsvEntryToTable = addCsvEntryToTable;
+exports.mergeSortedCsvObjectArrays = mergeSortedCsvObjectArrays;
+exports.sortCsvObjectArray = sortCsvObjectArray;
 exports.splitIntervalAtMidnight = splitIntervalAtMidnight;
 exports.stripToHoursAndMinutes = normalizeToHoursAndMinutes;
+

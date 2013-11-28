@@ -44,7 +44,7 @@
 
     var csvReadDone = function(data) {
       var maradata = $.csv.toObjects(data);
-      for (var i in maradata) {
+      for (var i = 0; i < maradata.length; i++) {
         bcviz.addCsvEntryToTable(maradata[i], dataTable);
       }
       chart.draw(dataTable);
