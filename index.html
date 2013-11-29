@@ -57,7 +57,8 @@
         }
         // TODO(gtener): Remove possibly duplicate entries.
         console.log('allCsv.length == ' + allCsv.length);
-        var sortedCsvData = bcviz.sortCsvObjectArray(allCsv);
+        var sortedCsvData = bcviz.removeDuplicatesFromSortedCsvEntries(bcviz.sortCsvObjectArray(allCsv));
+        console.log('sortedCsvData.length == ' + sortedCsvData.length);
         drawChart(sortedCsvData);
       });
     } else {

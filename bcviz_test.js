@@ -83,3 +83,15 @@ describe('bcviz', function(){
     })
   })
 })
+
+describe('bcviz', function(){
+  describe('#removeDuplicatesFromSortedCsvEntries()', function(){
+    it('removes duplicate entries', function(){
+      var objA = {};
+      var objB = {};
+      objA[bcviz.START_TIME] = '11/2/2013 07:20';
+      objB[bcviz.START_TIME] = '11/2/2013 07:20';
+      assert.deepEqual([objA], bcviz.removeDuplicatesFromSortedCsvEntries([objA, objB]));
+    })
+  })
+})
