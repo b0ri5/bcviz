@@ -84,6 +84,13 @@ var sortCsvObjectArray = function (csv) {
   });
 }
 
+var removeDuplicatesFromSortedCsvEntries = function(csv) {
+  return csv.filter(function(elem, pos, self) {
+    return pos == 0 ||
+        JSON.stringify(self[pos - 1]) != JSON.stringify(self[pos]);
+  });
+}
+
 if (typeof exports == 'undefined') {
   var exports = this['bcviz'] = {};
 }
@@ -93,6 +100,7 @@ exports.START_TIME = START_TIME;
 exports.addCsvEntryToTable = addCsvEntryToTable;
 exports.dateToDisplayDate = dateToDisplayDate;
 exports.dateToTime = dateToTime;
+exports.removeDuplicatesFromSortedCsvEntries = removeDuplicatesFromSortedCsvEntries;
 exports.sortCsvObjectArray = sortCsvObjectArray;
 exports.splitIntervalAtMidnight = splitIntervalAtMidnight;
 exports.stripToHoursAndMinutes = normalizeToHoursAndMinutes;
