@@ -1,113 +1,141 @@
 <html>
-<head>
-<script type="text/javascript"
-  src="https://code.jquery.com/jquery-latest.min.js">
-</script>
+  <head>
+    <script type="text/javascript"
+      src="https://code.jquery.com/jquery-latest.min.js">
+    </script>
 
-<script type="text/javascript"
-  src="https://jquery-csv.googlecode.com/git/src/jquery.csv.js">
-</script>
+    <script type="text/javascript"
+      src="https://jquery-csv.googlecode.com/git/src/jquery.csv.js">
+    </script>
 
-<script type="text/javascript" src="https://www.google.com/jsapi">
-</script>
+    <script type="text/javascript" src="https://www.google.com/jsapi">
+    </script>
 
-<script type="text/javascript" src="./bcviz.js"></script>
+    <script type="text/javascript" src="./bcviz.js"></script>
 
-<script type="text/javascript">
-  google.load('visualization', '1', {
-    'packages' : [ 'timeline' ]
-  });
-  google.setOnLoadCallback(drawChart);
-
-  var CLIENT_ID = '911658691612-3h2lr0c30dhiekcdk83euqlviuqufk1r.apps.googleusercontent.com';
-  var SCOPES = 'https://www.googleapis.com/auth/drive.readonly';
-
-  function handleClientLoad() {
-    window.setTimeout(checkAuth, 1);
-  }
-  
-  function checkAuth() {
-    gapi.auth.authorize(
-      {'client_id': CLIENT_ID, 'scope': SCOPES, 'immediate': true},
-        handleAuthResult);
-  }
-
-  function handleAuthResult(authResult) {
-    if (authResult && !authResult.error) {
-      var request = gapi.client.request({
-          'path': '/drive/v2/files',
-          'method': 'GET',
-          'params': {'maxResults': 10,
-                     'q': 'title contains \'Mara\' and \'0B64XK3VaP-HNd1BLUlg5RHVQQjQ\' in parents'}});
-      request.execute(function(response) {
-        console.log(response);
-        var accessToken = gapi.auth.getToken().access_token;
-        var allCsv = [];
-        for (var i = 0; i < response.items.length; i++) {
-          var xhr = new XMLHttpRequest();
-          // TODO(gtener): Make async requests.
-          xhr.open('GET', response.items[i].downloadUrl, false /* asynchronous*/ );
-          xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-          xhr.onload = function() {
-            var maradata = $.csv.toObjects(xhr.responseText);
-            console.log('Adding ' + maradata.length + ' entries');
-            allCsv = allCsv.concat(maradata);
-          };
-          xhr.send();
-        }
-        // TODO(gtener): Remove possibly duplicate entries.
-        console.log('allCsv.length == ' + allCsv.length);
-        var sortedCsvData = bcviz.removeDuplicatesFromSortedCsvEntries(bcviz.sortCsvObjectArray(allCsv));
-        console.log('sortedCsvData.length == ' + sortedCsvData.length);
-        drawChart(sortedCsvData);
+    <script type="text/javascript">
+      google.load('visualization', '1', {
+        'packages' : [ 'corechart' ]
       });
-    } else {
-      // No access token could be retrieved, show the button to start the authorization flow.
-      var authButton = document.getElementById('authorizeButton');
-      authButton.style.display = 'block';
-      authButton.onclick = function() {
-          gapi.auth.authorize(
-              {'client_id': CLIENT_ID, 'scope': SCOPES, 'immediate': false},
-              handleAuthResult);
-      };
-    }
-  }
+      google.setOnLoadCallback(drawChart);
 
-  function drawChart(sortedCsvData) {
-    var container = document.getElementById('example1');
-    var chart = new google.visualization.Timeline(container);
-    var dataTable = new google.visualization.DataTable();
+      var CLIENT_ID = '911658691612-3h2lr0c30dhiekcdk83euqlviuqufk1r.apps.googleusercontent.com';
+      var SCOPES = 'https://www.googleapis.com/auth/drive.readonly';
 
-    dataTable.addColumn({
-      type : 'string',
-      id : 'Day'
-    });
-    dataTable.addColumn({
-      type : 'string',
-      id : 'Activity'
-    });
-    dataTable.addColumn({
-      type : 'date',
-      id : 'Start'
-    });
-    dataTable.addColumn({
-      type : 'date',
-      id : 'End'
-    });
-    for (var i = 0; i < sortedCsvData.length; i++) {
-      bcviz.addCsvEntryToTable(sortedCsvData[i], dataTable);
-    }
-    chart.draw(dataTable);
-  }
-</script>
+      function handleClientLoad() {
+        window.setTimeout(checkAuth, 1);
+      }
+      
+      function checkAuth() {
+        gapi.auth.authorize(
+          {'client_id': CLIENT_ID, 'scope': SCOPES, 'immediate': true},
+            handleAuthResult);
+      }
 
-<script type="text/javascript" src="https://apis.google.com/js/client.js?onload=handleClientLoad"></script>
-</script>
+      function handleAuthResult(authResult) {
+        if (authResult && !authResult.error) {
+          var request = gapi.client.request({
+              'path': '/drive/v2/files',
+              'method': 'GET',
+              'params': {'maxResults': 10,
+                         'q': 'title contains \'Milestones only\' and \'0B64XK3VaP-HNd1BLUlg5RHVQQjQ\' in parents'}});
+          request.execute(function(response) {
+            console.log(response);
+            var accessToken = gapi.auth.getToken().access_token;
+            var allCsv = [];
+            for (var i = 0; i < response.items.length; i++) {
+              var xhr = new XMLHttpRequest();
+              // TODO(gtener): Make async requests.
+              xhr.open('GET', response.items[i].downloadUrl, false /* asynchronous*/ );
+              xhr.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+              xhr.onload = function() {
+                var maradata = $.csv.toObjects(xhr.responseText);
+                console.log('Adding ' + maradata.length + ' entries');
+                allCsv = allCsv.concat(maradata);
+              };
+              xhr.send();
+            }
+            // TODO(gtener): Remove possibly duplicate entries.
+            console.log('allCsv.length == ' + allCsv.length);
+            console.log(allCsv[0]['Date and Time']);
+            console.log(new Date(allCsv[0]['Date and Time']));
+            drawChart(allCsv);
+          });
+        } else {
+          // No access token could be retrieved, show the button to start the authorization flow.
+          var authButton = document.getElementById('authorizeButton');
+          authButton.style.display = 'block';
+          authButton.onclick = function() {
+              gapi.auth.authorize(
+                  {'client_id': CLIENT_ID, 'scope': SCOPES, 'immediate': false},
+                  handleAuthResult);
+          };
+        }
+      }
 
-</head>
+      function makeHtmlToolTip(text) {
+        // TODO(elenae) Make these bubbles pretty.
+        // TODO(greg) Pass the date in this function, and retrieve a photo by date.
+        return '<p style="display: block; width: 200px">' + text + ' </p>';
+      }
+
+      function drawChart(csvs) {
+        var container = document.getElementById('example1');
+        var chart = new google.visualization.AreaChart(container);
+        var dataTable = new google.visualization.DataTable();
+
+        dataTable.addColumn({
+          type : 'datetime',
+          id : 'Date and Time'
+        });
+        dataTable.addColumn({
+          type : 'number',
+          id : 'Number of Milestones'
+        });
+        dataTable.addColumn({
+          type : 'string',
+          role : 'annotation'
+        });
+        dataTable.addColumn({
+          type : 'string',
+          role : 'tooltip',
+          p: {html:true}
+        });
+//for (var i = 0; i < csvs.length; i++) {
+        var birthday = new Date("2013/08/29");
+        var lastAge = '';
+        for (var i = 0; i < csvs.length; i++) {
+          var dateOfEvent = new Date(csvs[i]['Date and Time']);
+          var age = new Date(dateOfEvent - birthday).getMonth();
+          console.log(age);
+          var ageToPrint = age + ' months'
+          if (ageToPrint == lastAge) {
+            ageToPrint = '';
+          } else {
+            lastAge = ageToPrint;
+          }
+          dataTable.addRow([dateOfEvent, i + 1, ageToPrint, makeHtmlToolTip(csvs[i]['Notes'])]);
+          // TODO(Greg): https://google-developers.appspot.com/chart/interactive/docs/customizing_tooltip_content
+          // Add html to the tooltip so we can add images in the bubbles.
+        }
+        var options = {
+          crosshair: { trigger: 'both' }, // Display crosshairs on focus and selection.
+          curveType: 'function',
+          pointSize: 15,
+          pointShape: {type:'star', sides:5, dent:0.3}, 
+          hAxis: {minValue: new Date('08/29/2013'), maxValue: new Date('08/29/2014') },
+          tooltip: { isHtml: true },
+        }   
+        chart.draw(dataTable, options);
+      }
+    </script>
+
+    <script type="text/javascript" src="https://apis.google.com/js/client.js?onload=handleClientLoad"></script>
+    </script>
+  </head>
 <body>
   <input type="button" id="authorizeButton" style="display: none" value="Authorize" />
-  <div id="example1" style="width: 900px; height: 1800px;"></div>
+  <div id="example1" style="width: 3800px; height: 900px;"></div>
 </body>
 </html>
 
