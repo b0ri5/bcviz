@@ -92,6 +92,19 @@
           type : 'number',
           id : 'Number of Milestones'
         });
+        // Specialized columns must have the exact text of the csv 'Text' column.
+        dataTable.addColumn({
+          type : 'number',
+          id : 'Mara did a cool action'
+        });
+        dataTable.addColumn({
+          type : 'number',
+          id : 'Mara discovers something new'
+        });
+        dataTable.addColumn({
+          type : 'number',
+          id : 'Mara participated in an event'
+        });
         dataTable.addColumn({
           type : 'string',
           role : 'annotation'
@@ -101,7 +114,6 @@
           role : 'tooltip',
           p: {html:true}
         });
-//for (var i = 0; i < csvs.length; i++) {
         var birthday = new Date("2013/08/29");
         var lastAge = '';
         for (var i = 0; i < csvs.length; i++) {
@@ -114,9 +126,27 @@
           } else {
             lastAge = ageToPrint;
           }
-          dataTable.addRow([dateOfEvent, i + 1, ageToPrint, makeHtmlToolTip(csvs[i]['Notes'])]);
-          // TODO(Greg): https://google-developers.appspot.com/chart/interactive/docs/customizing_tooltip_content
-          // Add html to the tooltip so we can add images in the bubbles.
+          var seriesName = csvs[i]['Text'];
+          var row = [dateOfEvent];
+          var foundSpecializedColumn = false;
+          for (var colIdx = 1; colIdx < dataTable.getNumberOfColumns() - 2;
+               colIdx++) {
+               if (dataTable.getColumnId(colIdx) == seriesName) {
+                 console.log('yay' + seriesName);
+                 row.push(colIdx * 10 + i+1);
+                 foundSpecializedColumn = true;
+               } else {
+                 row.push(null);
+               }
+          }
+          if (!foundSpecializedColumn) {
+            // Add here as many null values as you have specialized columns.
+            row = [dateOfEvent, i+1, null, null, null];
+          }
+          row.push(ageToPrint);
+          row.push(makeHtmlToolTip(csvs[i]['Notes']));
+          console.log(row);
+          dataTable.addRow(row);
         }
         var options = {
           crosshair: { trigger: 'both' }, // Display crosshairs on focus and selection.
@@ -126,6 +156,7 @@
           hAxis: {minValue: new Date('08/29/2013'), maxValue: new Date('08/29/2014') },
           tooltip: { isHtml: true },
         }   
+        dataTable.sort([{column: 1}, {column: 2}, {column:3}, {column:4}]);
         chart.draw(dataTable, options);
       }
     </script>
