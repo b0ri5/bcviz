@@ -92,27 +92,36 @@
           type : 'number',
           id : 'Number of Milestones'
         });
-        // Specialized columns must have the exact text of the csv 'Text' column.
+        var dataColumns = [];
+        dataColumns.push(dataTable.getNumberOfColumns() - 1);
+        var tooltipColumn = {
+          type: 'string',
+          role: 'tooltip',
+          p: {html:true}
+        };
+        dataTable.addColumn(tooltipColumn);
+        // Specialized columns must have an id matching the exact text of the csv 'Text' column.
         dataTable.addColumn({
           type : 'number',
           id : 'Mara did a cool action'
         });
+        dataColumns.push(dataTable.getNumberOfColumns() - 1);
+        dataTable.addColumn(tooltipColumn);
         dataTable.addColumn({
           type : 'number',
           id : 'Mara discovers something new'
         });
+        dataColumns.push(dataTable.getNumberOfColumns() - 1);
+        dataTable.addColumn(tooltipColumn);
         dataTable.addColumn({
           type : 'number',
           id : 'Mara participated in an event'
         });
+        dataColumns.push(dataTable.getNumberOfColumns() - 1);
+        dataTable.addColumn(tooltipColumn);
         dataTable.addColumn({
           type : 'string',
           role : 'annotation'
-        });
-        dataTable.addColumn({
-          type : 'string',
-          role : 'tooltip',
-          p: {html:true}
         });
         var birthday = new Date("2013/08/29");
         var lastAge = '';
@@ -128,23 +137,24 @@
           }
           var seriesName = csvs[i]['Text'];
           var row = [dateOfEvent];
-          var foundSpecializedColumn = false;
-          for (var colIdx = 1; colIdx < dataTable.getNumberOfColumns() - 2;
-               colIdx++) {
-               if (dataTable.getColumnId(colIdx) == seriesName) {
-                 console.log('yay' + seriesName);
-                 row.push(colIdx * 10 + i+1);
-                 foundSpecializedColumn = true;
-               } else {
-                 row.push(null);
-               }
+          // Add null entries for all data columns and their tool tips
+          for (var j = 0; j < dataColumns.length; j++) {
+            row.push(null);
+            row.push(null);
           }
-          if (!foundSpecializedColumn) {
-            // Add here as many null values as you have specialized columns.
-            row = [dateOfEvent, i+1, null, null, null];
+          // Find the matching column.          
+          var matchingColumn = dataColumns[0];
+          for (var j = 1; j < dataColumns.length; j++) {
+             var colIdx = dataColumns[j];
+             if (dataTable.getColumnId(colIdx) == seriesName) {
+               matchingColumn = colIdx;
+             }
           }
+          // Set the matching data column and its tool tip.
+          row[matchingColumn] = matchingColumn * 10 + i + 1
+          row[matchingColumn + 1] = makeHtmlToolTip(csvs[i]['Notes']);
+
           row.push(ageToPrint);
-          row.push(makeHtmlToolTip(csvs[i]['Notes']));
           console.log(row);
           dataTable.addRow(row);
         }
