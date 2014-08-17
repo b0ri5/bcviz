@@ -1,0 +1,46 @@
+<html>
+  <head>
+    <script type="text/javascript" src="https://www.google.com/jsapi">
+    </script>
+    <script type="text/javascript">
+      google.load('visualization', '1', {
+        'packages' : ['corechart']
+      });
+      google.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+        var container = document.getElementById('example1');
+        var chart = new google.visualization.AreaChart(container);
+        var dataTable = new google.visualization.DataTable();
+
+        dataTable.addColumn({
+          type : 'datetime',
+          id : 'Date and Time'
+        });
+        dataTable.addColumn({
+          type : 'number',
+          id : 'id1'
+        });
+        dataTable.addColumn({
+          type : 'string',
+          role : 'tooltip'
+        });
+        dataTable.addColumn({
+          type : 'number',
+          id : 'id2'
+        });
+        dataTable.addColumn({
+          type : 'string',
+          role : 'tooltip',
+        });
+        dataTable.addRow([new Date('08-29-2013'), 10, 'tooltip1', null, null]);
+        dataTable.addRow([new Date('08-29-2014'), null, null, 15, 'tooltip2']);
+        chart.draw(dataTable);
+      }
+    </script>
+  </head>
+<body>
+  <div id="example1" style="width: 300px; height: 300px;"></div>
+</body>
+</html>
+
