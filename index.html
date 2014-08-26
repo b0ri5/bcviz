@@ -19,30 +19,17 @@
       });
       google.setOnLoadCallback(drawChart);
 
-      var API_KEY = 'AIzaSyDRk2LO3CQ0KRXqMQumSV3ZFgFZ2VdmQP4';
-      
       function handleClientLoad() {
-        gapi.client.setApiKey(API_KEY);
-        gapi.client.load('drive', 'v2', clientLoaded);
-      }
-
-      function clientLoaded() {
         // Taken from https://drive.google.com/#folders/0B64XK3VaP-HNUW9NSkV5bURGVmc
         var bcvizFolderId = '0B64XK3VaP-HNUW9NSkV5bURGVmc';
-        var request = gapi.client.drive.files.get({
-          'fileId': bcvizFolderId
-        });
-        request.execute(function(resp) {
-          console.log(resp.webViewLink);
-          var xhr = new XMLHttpRequest();
-          xhr.open('GET', resp.webViewLink + 'milestones-only.csv');
-          xhr.onload = function() {
-            var csvs = $.csv.toObjects(xhr.responseText);
-            console.log('Parsed ' + csvs.length + ' csv entries');
-            drawChart(csvs);
-          };
-          xhr.send();
-        });
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', 'https://googledrive.com/host/' + bcvizFolderId + '/' + 'milestones-only.csv');
+        xhr.onload = function() {
+          var csvs = $.csv.toObjects(xhr.responseText);
+          console.log('Parsed ' + csvs.length + ' csv entries');
+          drawChart(csvs);
+        };
+        xhr.send();
       }
       
       function makeHtmlToolTip(text) {
