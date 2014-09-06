@@ -30,12 +30,6 @@ var margin = {top: 20, right: 0, bottom: 20, left: 0},
     width = 960 - margin.left - margin.right,
     height = 500 - margin.top - margin.bottom;
 
-var formatNumber = d3.format(".1f");
-
-var y = d3.scale.linear()
-    .domain([0, 2e6])
-    .range([height, 0]);
-
 var birthDate = new Date("2013-08-29");
 var birthdayDate = new Date("2014-08-29");
 var endOfScale = new Date("2014-09-29");
@@ -86,7 +80,7 @@ var gy = svg.append("g")
     .attr("class", "y axis")
     .call(yAxis);
 
-gy.selectAll("g").filter(function(d) { return d; })
+gy.selectAll("g")
     .classed("minor", true);
 
 gy.selectAll("text")

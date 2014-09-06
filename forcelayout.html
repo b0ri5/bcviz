@@ -6,6 +6,25 @@
   stroke-width: 1.5px;
 }
 
+body {
+  font: 10px sans-serif;
+}
+
+.axis path {
+  display: none;
+}
+
+.axis line {
+  shape-rendering: crispEdges;
+  stroke: #000;
+}
+
+.axis .minor line {
+  stroke: #777;
+  // stroke-dasharray: 2,2;
+  opacity: 0.5;
+}
+
 </style>
 <body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js"></script>
@@ -104,15 +123,56 @@ function setupLayout(csvs) {
   }
   
   function drawAxis() {
-    var x = d3.time.scale()
-        .domain([birthDate, birthdayDate])
-        .range([0, 200]);
-    var xAxis = d3.svg.axis()
-        .scale(x);
-    svg.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + height + ")")
-        .call(xAxis);
+    var endOfScale = new Date("2014-09-29");
+    var y = d3.time.scale()
+        .domain([birthDate, endOfScale])
+        .range([0, height]);
+    var dateToMonth = {
+      "2013-08-29": 'Birth',
+      "2013-09-29": '1 month',
+      "2013-10-29": '2 months',
+      "2013-11-29": '3 months',
+      "2013-12-29": '4 months',
+      "2014-01-29": '5 months',
+      "2014-02-28": '6 months',
+      "2014-03-29": '7 months',
+      "2014-04-29": '8 months',
+      "2014-05-29": '9 months',
+      "2014-06-29": '10 months',
+      "2014-07-29": '11 months',
+      "2014-08-29": '1 year'
+    };
+    
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .tickSize(200)
+        .tickValues(Object.keys(dateToMonth).map(function(k) {
+          return new Date(k);
+        }))
+        .tickFormat(function(d) {
+          console.log(d);
+          // The dates are converted to utc so we need to add back a day.
+          d = +d; // Convert to milliseconds since epoch
+          d = d + 86400000 // Add a day because UTC
+          var formatted = d3.time.format("%Y-%m-%d")(new Date(d));
+          return dateToMonth[formatted];
+        })
+        .orient("right");
+    var margin = {top: 40, right: 0, bottom: 20, left: 0};
+    //svg.append("g")
+    //    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        
+    var gy = svg.append("g")
+        .attr("class", "axis")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+        .call(yAxis);
+    
+    gy.selectAll("g")
+        .classed("minor", true);
+    
+    gy.selectAll("text")
+        .attr("x", 4)
+        .attr("dy", -4);
   }
   
   drawAxis();
