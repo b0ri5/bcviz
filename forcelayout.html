@@ -6,10 +6,6 @@
   stroke-width: 1.5px;
 }
 
-body {
-  font: 10px sans-serif;
-}
-
 .axis path {
   display: none;
 }
@@ -22,7 +18,7 @@ body {
 .axis .minor line {
   stroke: #777;
   // stroke-dasharray: 2,2;
-  opacity: 0.5;
+  opacity: 0.618;
 }
 
 </style>
@@ -145,7 +141,7 @@ function setupLayout(csvs) {
     
     var yAxis = d3.svg.axis()
         .scale(y)
-        .tickSize(200)
+        .tickSize(width)
         .tickValues(Object.keys(dateToMonth).map(function(k) {
           return new Date(k);
         }))
@@ -164,7 +160,7 @@ function setupLayout(csvs) {
         
     var gy = svg.append("g")
         .attr("class", "axis")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+        .attr("transform", "translate(" + margin.left + "," + nodeYs[0] + ")")
         .call(yAxis);
     
     gy.selectAll("g")
