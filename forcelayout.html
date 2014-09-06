@@ -28,7 +28,6 @@ function setupLayout(csvs) {
   var birthDate = new Date("2013-08-29");
   var birthdayDate = new Date("2014-08-29");
   var lifeMillis = birthdayDate - birthDate;
-  console.log("lifeMillis == " + lifeMillis);
   
   var width = 960,
       height = 1000;
@@ -103,6 +102,20 @@ function setupLayout(csvs) {
     });
     force.resume();
   }
+  
+  function drawAxis() {
+    var x = d3.time.scale()
+        .domain([birthDate, birthdayDate])
+        .range([0, 200]);
+    var xAxis = d3.svg.axis()
+        .scale(x);
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+  }
+  
+  drawAxis();
 }
 </script>
 
