@@ -22,6 +22,8 @@
 }
 
 </style>
+<form>
+</form>
 <body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js"></script>
 <script src="https://code.jquery.com/jquery-latest.min.js"></script>
@@ -122,10 +124,65 @@ function setupLayout(csvs) {
       tip: d3.tip()
         .html(function(d, i) {
           return "<span>" + d.csv['Notes'] + "</span>";
-        })
+        }),
+      tags: calculateTags(csv, i)
     };
   });
 
+  var tags = [];
+  nodes.forEach(function(node) {
+    node.tags.forEach(function(tag) {
+      if (tags.indexOf(tag) == -1) {
+        tags.push(tag);
+      }
+    });
+  });
+
+  console.log("tags: " + tags);
+
+  d3.select("form").selectAll("input")
+      .data(suffix(tags, "a"))
+    .enter().append("input")
+      .attr("id", inputid)
+      .attr("type", "checkbox")
+      .attr("name", "tag")
+      .property("checked", true);
+  d3.select("form").selectAll("label")
+      .data(suffix(tags, "b"))
+    .enter().append("label")
+      .attr("id", inputid)
+      .text(function(d) { return removeSuffix(d); });
+  d3.select("form").selectAll("br")
+      .data(suffix(tags, "c"))
+    .enter().append("br");
+  d3.select("form").selectAll("*")
+    .sort(function(a, b) {
+      if (a < b) {
+        return -1;
+      } else if (a == b) {
+        return 0;
+      }
+      return 1;
+    });
+  // Reset the data to be the tags for the inputs.
+  d3.selectAll("input")
+      .data(tags);
+  
+
+  function inputid(d, i) {
+    return "input-" + d;
+  };
+  
+  function suffix(arr, s) {
+    return arr.map(function(o) {
+      return o + s;
+    });
+  }
+  
+  function removeSuffix(s) {
+    return s.substring(0, s.length - 1);
+  }
+  
   nodes.forEach(function(o, i) {
     svg.call(o.tip);
   });
@@ -168,6 +225,22 @@ function setupLayout(csvs) {
           clickedNodes.push(i);
         }
       });
+      
+  d3.selectAll("input")
+      .on("change", function(d, i) {
+        var checked = this.checked;
+        var tag = this.__data__;
+        gs.filter(function(d) {
+          return d.tags.indexOf(tag) != -1;
+        })
+        .style("opacity", function() {
+          if (checked) {
+            return 1.0;
+          }
+          return 0.5;
+        });
+      });
+      
   gs.append("circle")
       .attr("r", 14)
       .style("fill", function(d, i) { return fill(i & 3); })
@@ -201,6 +274,28 @@ function setupLayout(csvs) {
       o.y += (Math.random() - .5) * 40;
     });
     force.resume();
+  }
+  
+  function calculateTags(csv, i) {
+    i = i + 1;
+    var tags = [];
+    if (i % 2 == 0) {
+      tags.push("is_even");
+    }
+    var mod4 = (i -1) % 4;
+    if (mod4 == 0) {
+      tags.push("blue");
+    }
+    if (mod4 == 1) {
+      tags.push("orange");
+    }
+    if (mod4 == 2) {
+      tags.push("red");
+    }
+    if (mod4 == 3) {
+      tags.push("green");
+    }
+    return tags;
   }
 }
 </script>
