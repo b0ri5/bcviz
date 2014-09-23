@@ -248,15 +248,22 @@ function setupLayout(csvs) {
           }
         }
         console.log("Checked tags: " + checkedTags);
-        gs.filter(function(d) {
-          return d.tags.indexOf(tag) != -1;
-        })
-        .style("opacity", function() {
-          if (checked) {
-            return 1.0;
+        var hasAnyCheckedTag = function(d) {
+          // If there is at least one match
+          for (var i = 0; i < checkedTags.length; i++) {
+            var checkedTag = checkedTags[i];
+            if (d.tags.indexOf(checkedTag) != -1) {
+              return true;
+            }
           }
-          return 0.5;
-        });
+          return false;
+        };
+        gs.filter(hasAnyCheckedTag)
+            .style("opacity", 1.0);
+        gs.filter(function(d) {
+          return !hasAnyCheckedTag(d);
+        })
+        .style("opacity", 0.25);
       });
       
   gs.append("circle")
