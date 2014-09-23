@@ -129,6 +129,8 @@ function setupLayout(csvs) {
     };
   });
 
+  console.log(nodes);
+
   var tags = [];
   nodes.forEach(function(node) {
     node.tags.forEach(function(tag) {
@@ -140,48 +142,57 @@ function setupLayout(csvs) {
 
   console.log("tags: " + tags);
 
+  var inputs = [];
+  var labels = [];
+  var linebreaks = [];
+  tags.forEach(function(tag) {
+    inputs.push([tag, 0]);
+    labels.push([tag, 1]);
+    linebreaks.push([tag, 2]);
+  })
+  
   d3.select("form").selectAll("input")
-      .data(suffix(tags, "a"))
+      .data(inputs)
     .enter().append("input")
       .attr("id", inputid)
       .attr("type", "checkbox")
       .attr("name", "tag")
       .property("checked", true);
   d3.select("form").selectAll("label")
-      .data(suffix(tags, "b"))
+      .data(labels)
     .enter().append("label")
-      .attr("id", inputid)
-      .text(function(d) { return removeSuffix(d); });
+      .attr("for", inputid)
+      .text(function(d) { return d[0]; });
   d3.select("form").selectAll("br")
-      .data(suffix(tags, "c"))
+      .data(linebreaks)
     .enter().append("br");
+
   d3.select("form").selectAll("*")
     .sort(function(a, b) {
-      if (a < b) {
-        return -1;
-      } else if (a == b) {
-        return 0;
+      var c = cmp(tags.indexOf(a[0]), tags.indexOf(b[0]));
+      if (c != 0) {
+        return c;
       }
-      return 1;
+      return cmp(a[1], b[1]);
     });
   // Reset the data to be the tags for the inputs.
   d3.selectAll("input")
       .data(tags);
-  
+
+  console.log(d3.select("form").selectAll("*"));
+
+  function cmp(a, b) {
+    if (a < b) {
+      return -1;
+    } else if (a == b) {
+      return 0;
+    }
+    return 1;
+  }
 
   function inputid(d, i) {
-    return "input-" + d;
+    return "input-" + d[0];
   };
-  
-  function suffix(arr, s) {
-    return arr.map(function(o) {
-      return o + s;
-    });
-  }
-  
-  function removeSuffix(s) {
-    return s.substring(0, s.length - 1);
-  }
   
   nodes.forEach(function(o, i) {
     svg.call(o.tip);
@@ -225,11 +236,18 @@ function setupLayout(csvs) {
           clickedNodes.push(i);
         }
       });
-      
+
   d3.selectAll("input")
       .on("change", function(d, i) {
-        var checked = this.checked;
-        var tag = this.__data__;
+        var inputs = d3.selectAll("input");
+        var checkedTags = [];
+        for (var i = 0; i < inputs[0].length; i++) {
+          var input = inputs[0][i];
+          if (input.checked) {
+            checkedTags.push(input.__data__);
+          }
+        }
+        console.log("Checked tags: " + checkedTags);
         gs.filter(function(d) {
           return d.tags.indexOf(tag) != -1;
         })
@@ -290,10 +308,10 @@ function setupLayout(csvs) {
       tags.push("orange");
     }
     if (mod4 == 2) {
-      tags.push("red");
+      tags.push("green");
     }
     if (mod4 == 3) {
-      tags.push("green");
+      tags.push("red");
     }
     return tags;
   }
