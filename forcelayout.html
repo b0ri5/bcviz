@@ -36,10 +36,12 @@ var bcvizFolderId = '0B64XK3VaP-HNUW9NSkV5bURGVmc';
 var xhr = new XMLHttpRequest();
 xhr.open('GET', 'https://googledrive.com/host/' + bcvizFolderId + '/' + 'milestones-only.csv');
 xhr.onload = function() {
+  console.timeEnd("CSV Loading");
   var csvs = $.csv.toObjects(xhr.responseText);
   console.log('Parsed ' + csvs.length + ' csv entries');
   setupLayout(csvs);
 };
+console.time("CSV Loading");
 xhr.send();
 
 function setupLayout(csvs) {
@@ -122,14 +124,12 @@ function setupLayout(csvs) {
       y: nodeYs[i],
       csv: csv,
       tip: d3.tip()
-        .html(function(d, i) {
-          return "<span>" + d.csv['Notes'] + "</span>";
-        }),
+        .html(nodeToHtml),
       tags: calculateTags(csv, i)
     };
   });
 
-  console.log(nodes);
+  console.log("All nodes: %O", nodes);
 
   var tags = [];
   nodes.forEach(function(node) {
@@ -178,8 +178,6 @@ function setupLayout(csvs) {
   // Reset the data to be the tags for the inputs.
   d3.selectAll("input")
       .data(tags);
-
-  console.log(d3.select("form").selectAll("*"));
 
   function cmp(a, b) {
     if (a < b) {
@@ -302,6 +300,7 @@ function setupLayout(csvs) {
   }
   
   function calculateTags(csv, i) {
+    // TODO(eerbiceanu): Implement
     i = i + 1;
     var tags = [];
     if (i % 2 == 0) {
@@ -321,6 +320,11 @@ function setupLayout(csvs) {
       tags.push("red");
     }
     return tags;
+  }
+  
+  function nodeToHtml(d) {
+    // TODO(eerbiceanu): Implement
+    return "<span>" + d.csv['Notes'] + "</span>";
   }
 }
 </script>
