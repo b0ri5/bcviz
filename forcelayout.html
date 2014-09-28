@@ -154,6 +154,7 @@ function setupLayout(csvs) {
       csv: csv,
       tip: d3.tip()
         .attr("class", "tip")
+        .offset([-9, 0])
         .html(nodeToHtml),
       tags: calculateTags(csv, i)
     };
@@ -238,19 +239,13 @@ function setupLayout(csvs) {
   var clickedNodes = [];
   var mouseOveredNode;
   
-  // Trying to determine why the tooltip flickers.
-  var ing = false;
-  var incircle = false;
-  var intext = false;
-  
   var gs = svg.selectAll(".node")
       .data(nodes)
     .enter().append("g")
       .each(function(d) {
         d.svgElement = this;
       })
-      .on("mouseover", function(d, i) {
-        ing = true;
+      .on("mouseenter", function(d, i) {
         d.tip.show(d);
         mouseOveredNode = i;
         var n = nodes[mouseOveredNode];
@@ -259,9 +254,8 @@ function setupLayout(csvs) {
           nodes[o].tip.show(nodes[o], nodes[o].svgElement);
         });
       })
-      .on("mouseout", function(d, i) {
-        ing = false;
-        console.log({ing: ing, incircle: incircle, intext: intext});
+      // Use mouseleave to eliminate flickering. See http://bl.ocks.org/mbostock/5247027
+      .on("mouseleave", function(d, i) {
         var n = nodes[mouseOveredNode];
         n.tip.hide(n);
         mouseOveredNode = undefined;
@@ -333,22 +327,10 @@ function setupLayout(csvs) {
       
   gs.append("circle")
       .attr("r", 14)
-      .on("mouseover", function() {
-        incircle = true;
-      })
-      .on("mouseout", function() {
-        incircle = false;
-      })
       .style("fill", function(d, i) { return fill(i & 3); })
       .style("stroke", function(d, i) { return d3.rgb(fill(i & 3)).darker(2); });
   var texts = gs.append("text")
       .attr("text-anchor", "middle")
-      .on("mouseover", function() {
-        intext = true;
-      })
-      .on("mouseout", function() {
-        intext = false;
-      })
       .text(function(d) { return d.index + 1; })
       .attr("dy", "5.5px")
       .attr("style", "pointer-events: none;");
