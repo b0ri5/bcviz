@@ -21,6 +21,35 @@
   opacity: 0.618;
 }
 
+.tip {
+  line-height: 1;
+  font-weight: bold;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 2px;
+}
+
+/* Creates a small triangle extender for the tooltip */
+.tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
+}
+
+/* Style northward tooltips differently */
+.tip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+}
+
 </style>
 <form>
 </form>
@@ -43,6 +72,8 @@ xhr.onload = function() {
 };
 console.time("CSV Loading");
 xhr.send();
+
+var silly;
 
 function setupLayout(csvs) {
   var birthDate = new Date("2013-08-29");
@@ -99,9 +130,7 @@ function setupLayout(csvs) {
         })
         .orient("right");
     var margin = {top: 40, right: 0, bottom: 20, left: 0};
-    //svg.append("g")
-    //    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-        
+
     var gy = svg.append("g")
         .attr("class", "axis")
         .attr("transform", "translate(" + margin.left + "," + nodeYs[0] + ")")
@@ -124,10 +153,12 @@ function setupLayout(csvs) {
       y: nodeYs[i],
       csv: csv,
       tip: d3.tip()
+        .attr("class", "tip")
         .html(nodeToHtml),
       tags: calculateTags(csv, i)
     };
   });
+  silly = nodes;
 
   console.log("All nodes: %O", nodes);
 
@@ -205,6 +236,12 @@ function setupLayout(csvs) {
       .start();
   
   var clickedNodes = [];
+  var mouseOveredNode;
+  
+  // Trying to determine why the tooltip flickers.
+  var ing = false;
+  var incircle = false;
+  var intext = false;
   
   var gs = svg.selectAll(".node")
       .data(nodes)
@@ -212,20 +249,28 @@ function setupLayout(csvs) {
       .each(function(d) {
         d.svgElement = this;
       })
-      .attr("class", "node")
-      .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")";})
-      .on("mouseover", function(d) {
+      .on("mouseover", function(d, i) {
+        ing = true;
         d.tip.show(d);
+        mouseOveredNode = i;
+        var n = nodes[mouseOveredNode];
+        n.tip.show(n, n.svgElement);
         clickedNodes.forEach(function(o) {
           nodes[o].tip.show(nodes[o], nodes[o].svgElement);
         });
       })
       .on("mouseout", function(d, i) {
-        if (clickedNodes.indexOf(i) == -1) {
+        ing = false;
+        console.log({ing: ing, incircle: incircle, intext: intext});
+        var n = nodes[mouseOveredNode];
+        n.tip.hide(n);
+        mouseOveredNode = undefined;
+        if (i != draggedNode && clickedNodes.indexOf(i) == -1) {
           d.tip.hide(d);
         }
       })
       .on("click", function(d, i) {
+        if (d3.event.defaultPrevented) return; // ignore drag
         var index = clickedNodes.indexOf(i);
         if (index != -1) {
           clickedNodes.splice(index, 1);
@@ -234,6 +279,28 @@ function setupLayout(csvs) {
           clickedNodes.push(i);
         }
       });
+    
+  var draggedNode;
+  var drag = force.drag()
+    .on("drag", dragmove)
+    .on("dragend", dragend);
+    
+  function dragmove(d, i) {
+    draggedNode = i;
+    d.tip.show(d);
+  }
+  // TODO: Hide the tip if it's not selected.
+  function dragend(d, i) {
+    draggedNode = undefined;
+    if (mouseOveredNode != i) {
+      d.tip.hide(d);
+    }
+  }
+  
+  gs
+      .attr("class", "node")
+      .call(drag)
+      .on("mousedown", function() { d3.event.stopPropagation(); });
 
   d3.selectAll("input")
       .on("change", function(d, i) {
@@ -266,12 +333,22 @@ function setupLayout(csvs) {
       
   gs.append("circle")
       .attr("r", 14)
+      .on("mouseover", function() {
+        incircle = true;
+      })
+      .on("mouseout", function() {
+        incircle = false;
+      })
       .style("fill", function(d, i) { return fill(i & 3); })
-      .style("stroke", function(d, i) { return d3.rgb(fill(i & 3)).darker(2); })
-      .call(force.drag)
-      .on("mousedown", function() { d3.event.stopPropagation(); });
+      .style("stroke", function(d, i) { return d3.rgb(fill(i & 3)).darker(2); });
   var texts = gs.append("text")
       .attr("text-anchor", "middle")
+      .on("mouseover", function() {
+        intext = true;
+      })
+      .on("mouseout", function() {
+        intext = false;
+      })
       .text(function(d) { return d.index + 1; })
       .attr("dy", "5.5px")
       .attr("style", "pointer-events: none;");
@@ -281,23 +358,41 @@ function setupLayout(csvs) {
       .duration(1000)
       .style("opacity", 1);
   
-  d3.select("body")
-      .on("mousedown", mousedown);
+  //d3.select("body")
+  //    .on("mousedown", mousedown);
   
   function tick(e) {
     nodes.forEach(function(o, i) {
       o.y = nodeYs[i];
     });
-    gs.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")";});
+    gs.attr("transform", function(d, i) {
+      return "translate(" + d.x + "," + d.y + ")";
+    });
+    if (mouseOveredNode >= 0) {
+      var n = nodes[mouseOveredNode];
+      n.tip.show(n, n.svgElement)
+    }
+    if (draggedNode >= 0) {
+      var n = nodes[draggedNode];
+      n.tip.show(n, n.svgElement)
+    }
+    clickedNodes.forEach(function(o) {
+      nodes[o].tip.show(nodes[o], nodes[o].svgElement);
+    });
+    nodes.forEach(function(o, i) {
+      if (i != mouseOveredNode && i != draggedNode && clickedNodes.indexOf(i) == -1) {
+        o.tip.hide(o);
+      }
+    })
   }
-  
+  /*
   function mousedown() {
     nodes.forEach(function(o, i) {
       o.x += (Math.random() - .5) * 40;
       o.y += (Math.random() - .5) * 40;
     });
     force.resume();
-  }
+  }*/
   
   function calculateTags(csv, i) {
     // TODO(eerbiceanu): Implement
