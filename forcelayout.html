@@ -257,13 +257,16 @@ function setupLayout(csvs) {
       // Use mouseleave to eliminate flickering. See http://bl.ocks.org/mbostock/5247027
       .on("mouseleave", function(d, i) {
         var n = nodes[mouseOveredNode];
-        n.tip.hide(n);
+        if (clickedNodes.indexOf(mouseOveredNode) == -1) {
+          n.tip.hide(n);
+        }
         mouseOveredNode = undefined;
         if (i != draggedNode && clickedNodes.indexOf(i) == -1) {
           d.tip.hide(d);
         }
       })
       .on("click", function(d, i) {
+        console.log(clickedNodes);
         if (d3.event.defaultPrevented) return; // ignore drag
         var index = clickedNodes.indexOf(i);
         if (index != -1) {
@@ -272,6 +275,8 @@ function setupLayout(csvs) {
         } else {
           clickedNodes.push(i);
         }
+        console.log(clickedNodes);
+
       });
     
   var draggedNode;
@@ -324,7 +329,7 @@ function setupLayout(csvs) {
         })
         .style("opacity", 0.25);
       });
-      
+
   gs.append("circle")
       .attr("r", 14)
       .style("fill", function(d, i) { return fill(i & 3); })
