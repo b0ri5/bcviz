@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+table,table.tecspec{
+	border-collapse:collapse;width:100%;
+}
+
+table tr:nth-child(odd)	{background-color:#f1f1f1;}
+table tr:nth-child(even)	{background-color:#ffffff;}
+
+table tr.fixzebra			{background-color:#f1f1f1;}
+
+table th{
+	color:#ffffff;background-color:#555555;border:1px solid #555555;padding:3px;vertical-align:top;text-align:left;
+}
+
+table th a:link,table.reference th a:visited{
+	color:#ffffff;
+}
+
+table th a:hover,table.reference th a:active{
+	color:#EE872A;
+}
+
+table td{
+	border:1px solid #d4d4d4;padding:5px;padding-top:7px;padding-bottom:7px;vertical-align:top;
+}
+
+table
+{
+vertical-align:bottom;
+}
+</style>
+
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js"></script>
+<script src="https://code.jquery.com/jquery-latest.min.js"></script>
+<script src="https://jquery-csv.googlecode.com/git/src/jquery.csv.js"></script>
+<script>
+
+// Taken from https://drive.google.com/#folders/0B64XK3VaP-HNUW9NSkV5bURGVmc
+var bcvizFolderId = '0B64XK3VaP-HNUW9NSkV5bURGVmc';
+var xhr = new XMLHttpRequest();
+xhr.open('GET', 'https://googledrive.com/host/' + bcvizFolderId + '/' + 'milestones-only.csv');
+xhr.onload = function() {
+  console.timeEnd("CSV Loading");
+  var csvs = $.csv.toObjects(xhr.responseText);
+  console.log('Parsed ' + csvs.length + ' csv entries');
+  renderCsvs(csvs);
+};
+console.time("CSV Loading");
+xhr.send();
+
+function renderCsvs(csvs) {
+  console.log(csvs);
+  var csvcolumns = Object.keys(csvs[0]);
+  var columns = Object.keys(csvs[0]);
+  columns.push("tags");
+  var table = d3.select("body").append("table");
+  table.append("tr").selectAll("th")
+      .data(columns)
+    .enter()
+      .append("th")
+      .text(function(d) { return d; });
+  var trs = table.selectAll("tr")
+      .data(csvs)
+    .enter().append("tr");
+  trs.selectAll("td")
+      .data(function(csv) {
+        var row = csvcolumns.map(function(column) {
+          return csv[column];
+        });
+        row.push("[" + calculateTags(csv).toString() + "]");
+        return row;
+      })
+    .enter().append("td")
+      .text(function(d) { return d; });
+}
+
+// Returns the list of tags a csv entry will have
+function calculateTags(csv) {
+  var tags = [];
+  var text = csv['Text'];
+  var notes = csv['Notes'];
+  if (csv['Text'] == "Mara produced another tooth") {
+    tags.push("tooth");
+  }
+  if (text.indexOf("food") != -1 || notes.indexOf("food") != -1) {
+    tags.push("food");
+  }
+  // TODO(eerbiceanu): Implement the rest.
+  return tags;
+}
+
+
+
+</script>
+
