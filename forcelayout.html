@@ -380,27 +380,59 @@ function setupLayout(csvs) {
     });
     force.resume();
   }*/
-  
-  function calculateTags(csv, i) {
-    // TODO(eerbiceanu): Implement
-    i = i + 1;
+  function containsStringButNotString(s, substr,  not_substr) {
+    var lower_case_s = s.toLowerCase();
+    var lower_case_substr = substr.toLowerCase();
+    var has_substring = lower_case_s.indexOf(lower_case_substr) > -1;
+    if (not_substr == undefined) return has_substring;
+    var lower_case_not_substr = not_substr.toLowerCase();
+    return has_substring && lower_case_s.indexOf(lower_case_not_substr) == -1;
+  }
+  function calculateTags(csv) {
+    var disambiguating_tag_map = {}
+    var token_tag_map = {};
+    token_tag_map["tooth"] = "tooth";
+    token_tag_map["teeth"] = "tooth";
+    token_tag_map["food"] = "food";
+    token_tag_map["discover"] = "discovery";
+    token_tag_map["turn"] = "motor";
+    token_tag_map["roll"] = "motor";
+    token_tag_map["sit"] = "motor";
+    token_tag_map["step"] = "motor";
+    token_tag_map["walk"] = "motor";
+    token_tag_map["crawl"] = "motor";
+    token_tag_map["tear"] = "emotion";
+    token_tag_map["smile"] = "emotion";
+    token_tag_map["coo"] = "emotion";  disambiguating_tag_map["coo"] = "cool";
+    token_tag_map["action"] = "action";
+    token_tag_map["Mara does"] = "action";
+    token_tag_map["pointed"] = "action";  // one-off
+    token_tag_map["sleep"] = "sleep";
+    token_tag_map["slept"] = "sleep";
+    token_tag_map["poop"] = "poop";
+    token_tag_map["hot"] = "temperature";  // revisit this
+    token_tag_map["met"] = "visit"; disambiguating_tag_map["met"] = "something"; 
+    token_tag_map["meet"] = "visit";
+    token_tag_map["visit"] = "visit";
+    token_tag_map["iversary"] = "celebration";
+    // TODO(eerbiceanu): Add a tag for "sign". There look to be several milestones like that.
+    var text = csv['Text'];
+    var notes = csv['Notes'];
     var tags = [];
-    if (i % 2 == 0) {
-      tags.push("is_even");
+    for (token in token_tag_map) {
+      var bad_token = disambiguating_tag_map[token];
+      var tag = token_tag_map[token];
+      // We shouldn't add a tag multiple times;
+      // Todo: this is not working yet
+      if (tags.indexOf(tag) != -1) {
+        continue;
+      }
+      if (containsStringButNotString(text, token, bad_token) ||
+          containsStringButNotString(notes, token, bad_token)) {
+        tags.push(token_tag_map[token])
+      }
     }
-    var mod4 = (i -1) % 4;
-    if (mod4 == 0) {
-      tags.push("blue");
-    }
-    if (mod4 == 1) {
-      tags.push("orange");
-    }
-    if (mod4 == 2) {
-      tags.push("green");
-    }
-    if (mod4 == 3) {
-      tags.push("red");
-    }
+    // TODO(eerbiceanu): Implement the rest.
     return tags;
   }
   
