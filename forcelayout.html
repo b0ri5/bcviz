@@ -174,9 +174,9 @@ function setupLayout(csvs) {
 
   console.log("tags: " + tags);
 
-  var inputs = [];
-  var labels = [];
-  var linebreaks = [];
+  var inputs = [["all", 0]];
+  var labels = [["all", 1]];
+  var linebreaks = [["all", 2]];
   tags.forEach(function(tag) {
     inputs.push([tag, 0]);
     labels.push([tag, 1]);
@@ -187,9 +187,11 @@ function setupLayout(csvs) {
       .data(inputs)
     .enter().append("input")
       .attr("id", inputid)
-      .attr("type", "checkbox")
+      .attr("type", "radio")
       .attr("name", "tag")
-      .property("checked", true);
+      .property("checked", function(d) {
+        return d[0] == "all";
+      });
   d3.select("form").selectAll("label")
       .data(labels)
     .enter().append("label")
@@ -313,6 +315,10 @@ function setupLayout(csvs) {
         }
         console.log("Checked tags: " + checkedTags);
         var hasAnyCheckedTag = function(d) {
+          if (inputs[0][0].checked) {
+            console.log("Returning true because \"all\" is checked");
+            return true;
+          }
           // If there is at least one match
           for (var i = 0; i < checkedTags.length; i++) {
             var checkedTag = checkedTags[i];
