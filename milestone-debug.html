@@ -94,14 +94,24 @@ function calculateTags(csv) {
   token_tag_map["teeth"] = "tooth";
   token_tag_map["food"] = "food";
   token_tag_map["discover"] = "discovery";
+  token_tag_map["grab"] = "motor";
+  token_tag_map["held"] = "motor";
+  token_tag_map["hold"] = "motor";
+  token_tag_map["aiming"] = "motor";
+  token_tag_map["moved"] = "motor";
   token_tag_map["turn"] = "motor";
   token_tag_map["roll"] = "motor";
   token_tag_map["sit"] = "motor";
+  token_tag_map["sat"] = "motor";
   token_tag_map["step"] = "motor";
+  token_tag_map["stand"] = "motor";
   token_tag_map["walk"] = "motor";
   token_tag_map["crawl"] = "motor";
+  token_tag_map["drink"] = "motor";
+  token_tag_map["independence"] = "motor";
   token_tag_map["tear"] = "emotion";
   token_tag_map["smile"] = "emotion";
+  token_tag_map["giggle"] = "emotion";
   token_tag_map["coo"] = "emotion";  disambiguating_tag_map["coo"] = "cool";
   token_tag_map["action"] = "action";
   token_tag_map["Mara does"] = "action";
@@ -110,11 +120,19 @@ function calculateTags(csv) {
   token_tag_map["slept"] = "sleep";
   token_tag_map["poop"] = "poop";
   token_tag_map["hot"] = "temperature";  // revisit this
-  token_tag_map["met"] = "visit"; disambiguating_tag_map["met"] = "something"; 
-  token_tag_map["meet"] = "visit";
-  token_tag_map["visit"] = "visit";
+  token_tag_map["met"] = "event"; disambiguating_tag_map["met"] = "something"; 
+  token_tag_map["meet"] = "event";
+  token_tag_map["visit"] = "event";
+  token_tag_map["event"] = "event"; //disambiguating_tag_map["event"] = "even"; 
+  token_tag_map["eyes"] = "event";
+  token_tag_map["first"] = "first";
   token_tag_map["iversary"] = "celebration";
-  // TODO(eerbiceanu): Add a tag for "sign". There look to be several milestones like that.
+  token_tag_map["sign"] = "sign";
+  token_tag_map["say"] = "verbal";
+  token_tag_map["said"] = "verbal";
+  token_tag_map["hummed"] = "verbal";
+  token_tag_map["sing"] = "verbal";
+  
   var text = csv['Text'];
   var notes = csv['Notes'];
   var tags = [];
