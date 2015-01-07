@@ -50,6 +50,17 @@
   left: 0;
 }
 
+.tip.n {
+  max-width: 600px;
+}
+
+ul.note {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+
 </style>
 <form>
 </form>
@@ -79,12 +90,12 @@ function setupLayout(csvs) {
   var birthDate = new Date("2013-08-29");
   var birthdayDate = new Date("2014-08-29");
   var lifeMillis = birthdayDate - birthDate;
-  
+
   var width = 960,
       height = 1000;
-  
+
   var fill = d3.scale.category10();
-  
+
   var nodeYs = csvs.map(function(csv) {
     var milestoneMillis = new Date(csv['Date and Time']) - birthDate;
     return height * (milestoneMillis / lifeMillis) + 15;
@@ -114,7 +125,7 @@ function setupLayout(csvs) {
       "2014-07-29": '11 months',
       "2014-08-29": '1 year'
     };
-    
+
     var yAxis = d3.svg.axis()
         .scale(y)
         .tickSize(width)
@@ -135,17 +146,17 @@ function setupLayout(csvs) {
         .attr("class", "axis")
         .attr("transform", "translate(" + margin.left + "," + nodeYs[0] + ")")
         .call(yAxis);
-    
+
     gy.selectAll("g")
         .classed("minor", true);
-    
+
     gy.selectAll("text")
         .attr("x", 4)
         .attr("dy", -4);
   }
-  
+
   drawAxis();
-  
+
   var nodes = csvs.map(function(csv, i) {
     return {
       index: i,
@@ -182,7 +193,7 @@ function setupLayout(csvs) {
     labels.push([tag, 1]);
     //linebreaks.push([tag, 2]);
   })
-  
+
   d3.select("form").selectAll("input")
       .data(inputs)
     .enter().append("input")
@@ -211,8 +222,9 @@ function setupLayout(csvs) {
     });
   // Reset the data to be the tags for the inputs.
   // TODO(greg): All tags are off by one because of the "all"tag.
+  var allAndTags = [null].concat(tags);
   d3.selectAll("input")
-      .data(tags);
+      .data(allAndTags);
 
   function cmp(a, b) {
     if (a < b) {
@@ -226,11 +238,11 @@ function setupLayout(csvs) {
   function inputid(d, i) {
     return "input-" + d[0];
   };
-  
+
   nodes.forEach(function(o, i) {
     svg.call(o.tip);
   });
-  
+
   var force = d3.layout.force()
       .nodes(nodes)
       .size([width, height])
@@ -238,10 +250,10 @@ function setupLayout(csvs) {
       .charge(-50)
       .theta(0.8)
       .start();
-  
+
   var clickedNodes = [];
   var mouseOveredNode;
-  
+
   var gs = svg.selectAll(".node")
       .data(nodes)
     .enter().append("g")
@@ -281,12 +293,12 @@ function setupLayout(csvs) {
         console.log(clickedNodes);
 
       });
-    
+
   var draggedNode;
   var drag = force.drag()
     .on("drag", dragmove)
     .on("dragend", dragend);
-    
+
   function dragmove(d, i) {
     draggedNode = i;
     d.tip.show(d);
@@ -298,7 +310,7 @@ function setupLayout(csvs) {
       d.tip.hide(d);
     }
   }
-  
+
   gs
       .attr("class", "node")
       .call(drag)
@@ -351,10 +363,10 @@ function setupLayout(csvs) {
     .transition()
       .duration(1000)
       .style("opacity", 1);
-  
+
   //d3.select("body")
   //    .on("mousedown", mousedown);
-  
+
   function tick(e) {
     nodes.forEach(function(o, i) {
       o.y = nodeYs[i];
@@ -428,7 +440,7 @@ function setupLayout(csvs) {
     token_tag_map["slept"] = "sleep";
     token_tag_map["poop"] = "poop";
     token_tag_map["hot"] = "temperature";  // revisit this
-    token_tag_map["met"] = "event"; disambiguating_tag_map["met"] = "something"; 
+    token_tag_map["met"] = "event"; disambiguating_tag_map["met"] = "something";
     token_tag_map["meet"] = "event";
     token_tag_map["visit"] = "event";
     token_tag_map["event"] = "event";
@@ -459,10 +471,24 @@ function setupLayout(csvs) {
     // TODO(eerbiceanu): Implement the rest.
     return tags;
   }
-  
+
   function nodeToHtml(d) {
-    // TODO(eerbiceanu): Implement
-    return "<span>" + d.csv['Notes'] + "</span>";
+    var s = "<ul class=\"note\">";
+    var text = d.csv['Text'];
+    if (text) {
+      s += "<li>Text: " + text + "</li>";
+    }
+    var notes = d.csv['Notes'];
+    if (notes) {
+      s += "<li>Notes: " + notes + "</li>";
+    }
+    /*var by = d.csv['By'];
+    console.log(d);
+    if (by) {
+      s += "<li>By: " + by + "</li>";
+    }*/
+    s += "</ul>";
+    return s;
   }
 }
 </script>
