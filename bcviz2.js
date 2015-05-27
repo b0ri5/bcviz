@@ -4,7 +4,7 @@ var MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
 
 var dateToDisplayDate = function(date) {
   return date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
-}
+};
 
 var splitIntervalAtMidnight = function(interval) {
   var dayAfterStart = new Date(interval.start.getTime() + MILLIS_PER_DAY);
@@ -31,14 +31,14 @@ var splitIntervalAtMidnight = function(interval) {
     return new Array({start: interval.start, end: startEnd},
 	      {start: endStart, end: interval.end});
   }
-}
+};
 
 var dateToTime = function(date) {
   console.log(date);
   var timeOfDay = new Date(date.getTime() % MILLIS_PER_DAY);
   console.log(timeOfDay);
   return timeOfDay;
-}
+};
 
 var addCsvEntryToTable = function(maradata, dataTable) {
   var activity = maradata[ACTIVITY];
