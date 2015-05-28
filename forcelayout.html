@@ -64,7 +64,7 @@ ul.note {
 </style>
 <form>
 </form>
-<body>
+<div id="div1">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js"></script>
 <script src="https://code.jquery.com/jquery-latest.min.js"></script>
 <script src="https://jquery-csv.googlecode.com/git/src/jquery.csv.js"></script>
@@ -94,14 +94,16 @@ function setupLayout(csvs) {
   var width = 960,
       height = 1000;
 
-  var fill = d3.scale.category10();
-
+  var category10 = d3.scale.category10();
+  for (var i = 0; i < 10; i++) {
+    console.log(category10(i));
+  }
   var nodeYs = csvs.map(function(csv) {
     var milestoneMillis = new Date(csv['Date and Time']) - birthDate;
     return height * (milestoneMillis / lifeMillis) + 15;
   });
 
-  var svg = d3.select("body").append("svg")
+  var svg = d3.select("#div1").append("svg")
       .attr("width", width)
       .attr("height", height);
 
@@ -175,8 +177,13 @@ function setupLayout(csvs) {
   console.log("All nodes: %O", nodes);
 
   var tags = [];
+  var tagCounts = {};
   nodes.forEach(function(node) {
     node.tags.forEach(function(tag) {
+      if (!(tag in tagCounts)) {
+        tagCounts[tag] = 0;
+      }
+      tagCounts[tag] += 1;
       if (tags.indexOf(tag) == -1) {
         tags.push(tag);
       }
@@ -184,6 +191,7 @@ function setupLayout(csvs) {
   });
 
   console.log("tags: " + tags);
+  console.log("tagCounts: %O", tagCounts);
 
   var inputs = [["all", 0]];
   var labels = [["all", 1]];
@@ -349,10 +357,89 @@ function setupLayout(csvs) {
         .style("opacity", 0.25);
       });
 
+  
+
+  var tagsToCategory = function(tags) {
+    /*
+    THese were the tag counts when writing this.
+    action: 33
+    celebration: 2
+    discovery: 32
+    emotion: 11
+    event: 56
+    first: 50
+    food: 6
+    motor: 69
+    poop: 2
+    sign: 8
+    sleep: 22
+    temperature: 1
+    tooth: 8
+    verbal: 31
+    
+    So it looks like we have
+    motor: 69
+    event: 56
+    first: 50
+    action: 33
+    discovery: 32
+    verbal: 31
+    sleep: 22
+    emotion:11
+    */
+    if (tags.indexOf("emotion") != -1) {
+      return 7;
+    } else if (tags.indexOf("sleep") != -1) {
+      return 6;
+    } else if (tags.indexOf("verbal") != -1) {
+      return 5;
+    } else if (tags.indexOf("discovery") != -1) {
+      return 4;
+    } else if (tags.indexOf("action") != -1) {
+      return 3;
+    } else if (tags.indexOf("first") != -1) {
+      return 2;
+    } else if (tags.indexOf("event") != -1) {
+      return 1;
+    } else if (tags.indexOf("motor") != -1) {
+      return 0;
+    } else {
+      return 8;
+    }
+    
+    /*if (tags.indexOf("motor") != -1) {
+      return 0;
+    } else if (tags.indexOf("event") != -1) {
+      return 1;
+    } else if (tags.indexOf("first") != -1) {
+      return 2;
+    } else if (tags.indexOf("action") != -1) {
+      return 3;
+    } else if (tags.indexOf("discovery") != -1) {
+      return 4;
+    } else if (tags.indexOf("verbal") != -1) {
+      return 5;
+    } else if (tags.indexOf("sleep") != -1) {
+      return 6;
+    } else if (tags.indexOf("emotion") != -1) {
+      return 7;
+    } else {
+      return 8;
+    }*/
+  };
+
   gs.append("circle")
       .attr("r", 14)
-      .style("fill", function(d, i) { return fill(i & 3); })
-      .style("stroke", function(d, i) { return d3.rgb(fill(i & 3)).darker(2); });
+      .style("fill", function(d, i) {
+        // return category10(i & 3);
+        var category = tagsToCategory(d.tags);
+        console.log("%O - %O", i, category);
+        return category10(category);
+      })
+      .style("stroke", function(d, i) {
+        //return d3.rgb(category10(i & 3)).darker(2);
+        return d3.rgb(category10(tagsToCategory(d.tags))).darker(2);
+      });
   var texts = gs.append("text")
       .attr("text-anchor", "middle")
       .text(function(d) { return d.index + 1; })
@@ -438,15 +525,15 @@ function setupLayout(csvs) {
     token_tag_map["pointed"] = "action";  // one-off
     token_tag_map["sleep"] = "sleep";
     token_tag_map["slept"] = "sleep";
-    token_tag_map["poop"] = "poop";
-    token_tag_map["hot"] = "temperature";  // revisit this
+    //token_tag_map["poop"] = "poop";
+    //token_tag_map["hot"] = "temperature";  // revisit this
     token_tag_map["met"] = "event"; disambiguating_tag_map["met"] = "something";
     token_tag_map["meet"] = "event";
     token_tag_map["visit"] = "event";
     token_tag_map["event"] = "event";
     token_tag_map["eyes"] = "event";
     token_tag_map["first"] = "first";
-    token_tag_map["iversary"] = "celebration";
+    //token_tag_map["iversary"] = "celebration";
     token_tag_map["sign"] = "sign";
     token_tag_map["say"] = "verbal";
     token_tag_map["said"] = "verbal";
@@ -467,6 +554,9 @@ function setupLayout(csvs) {
           containsStringButNotString(notes, token, bad_token)) {
         tags.push(token_tag_map[token])
       }
+    }
+    if (tags.length == 0) {
+      tags.push("other");
     }
     // TODO(eerbiceanu): Implement the rest.
     return tags;
