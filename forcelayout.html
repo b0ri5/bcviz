@@ -95,9 +95,7 @@ function setupLayout(csvs) {
       height = 1000;
 
   var category10 = d3.scale.category10();
-  for (var i = 0; i < 10; i++) {
-    console.log(category10(i));
-  }
+
   var nodeYs = csvs.map(function(csv) {
     var milestoneMillis = new Date(csv['Date and Time']) - birthDate;
     return height * (milestoneMillis / lifeMillis) + 15;
@@ -433,7 +431,6 @@ function setupLayout(csvs) {
       .style("fill", function(d, i) {
         // return category10(i & 3);
         var category = tagsToCategory(d.tags);
-        console.log("%O - %O", i, category);
         return category10(category);
       })
       .style("stroke", function(d, i) {
