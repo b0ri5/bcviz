@@ -110,8 +110,10 @@ function setupLayout(csvs) {
     var y = d3.time.scale()
         .domain([birthDate, endOfScale])
         .range([0, height]);
+    var startDate = "2013-08-29";
+    var endDate = "2014-08-29";
     var dateToMonth = {
-      "2013-08-29": 'Birth',
+      startDate: 'Birth',
       "2013-09-29": '1 month',
       "2013-10-29": '2 months',
       "2013-11-29": '3 months',
@@ -123,10 +125,26 @@ function setupLayout(csvs) {
       "2014-05-29": '9 months',
       "2014-06-29": '10 months',
       "2014-07-29": '11 months',
-      "2014-08-29": '1 year'
+      endDate: '1 year'
     };
 
+    var dateToEvent = {"2013-11-28": "Thanksgiving in FL"};
+
     var yAxis = d3.svg.axis()
+        .scale(y)
+        .tickSize(width)
+        .tickValues(Object.keys(dateToMonth).map(function(k) {
+          return new Date(k);
+        }))
+        .tickFormat(function(d) {
+          // The dates are converted to utc so we need to add back a day.
+          d = +d; // Convert to milliseconds since epoch
+          d = d + 86400000 // Add a day because UTC
+          var formatted = d3.time.format("%Y-%m-%d")(new Date(d));
+          return dateToMonth[formatted];
+        })
+        .orient("right");
+    var yAxis2 = d3.svg.axis()
         .scale(y)
         .tickSize(width)
         .tickValues(Object.keys(dateToMonth).map(function(k) {
