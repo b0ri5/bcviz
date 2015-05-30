@@ -105,15 +105,13 @@ function setupLayout(csvs) {
       .attr("width", width)
       .attr("height", height);
 
-  function drawAxis() {
+  function drawAxis(nodeYs) {
     var endOfScale = new Date("2014-09-29");
     var y = d3.time.scale()
         .domain([birthDate, endOfScale])
         .range([0, height]);
-    var startDate = "2013-08-29";
-    var endDate = "2014-08-29";
     var dateToMonth = {
-      startDate: 'Birth',
+      "2013-08-29": 'Birth',
       "2013-09-29": '1 month',
       "2013-10-29": '2 months',
       "2013-11-29": '3 months',
@@ -125,10 +123,10 @@ function setupLayout(csvs) {
       "2014-05-29": '9 months',
       "2014-06-29": '10 months',
       "2014-07-29": '11 months',
-      endDate: '1 year'
+      "2014-08-29": '1 year'
     };
 
-    var dateToEvent = {"2013-11-28": "Thanksgiving in FL"};
+    var dateToEvent = {"2013-11-29": "Thanksgiving in FL"};
 
     var yAxis = d3.svg.axis()
         .scale(y)
@@ -151,11 +149,7 @@ function setupLayout(csvs) {
           return new Date(k);
         }))
         .tickFormat(function(d) {
-          // The dates are converted to utc so we need to add back a day.
-          d = +d; // Convert to milliseconds since epoch
-          d = d + 86400000 // Add a day because UTC
-          var formatted = d3.time.format("%Y-%m-%d")(new Date(d));
-          return dateToMonth[formatted];
+          return "yeah";
         })
         .orient("right");
     var margin = {top: 40, right: 0, bottom: 20, left: 0};
@@ -171,9 +165,23 @@ function setupLayout(csvs) {
     gy.selectAll("text")
         .attr("x", 4)
         .attr("dy", -4);
+        
+    var margin2 = {top: 40, right: 0, bottom: 20, left: 800};
+
+    var gy2 = svg.append("g")
+        .attr("class", "axis")
+        .attr("transform", "translate(" + margin2.left + "," + nodeYs[0] + ")")
+        .call(yAxis2);
+
+    gy2.selectAll("g")
+        .classed("minor", true);
+
+    gy2.selectAll("text")
+        .attr("x", 4)
+        .attr("dy", -4);
   }
 
-  drawAxis();
+  drawAxis(nodeYs);
 
   var nodes = csvs.map(function(csv, i) {
     return {
