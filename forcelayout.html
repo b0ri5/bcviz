@@ -497,7 +497,7 @@ function setupLayout(csvs) {
   function calculateTags(csv) {
     var disambiguating_tag_map = {}
     var token_tag_map = {};
-    token_tag_map["tooth"] = "tooth";
+    token_tag_map["tooth"] = "tooth"; disambiguating_tag_map["tooth"] = "toothbrush";
     token_tag_map["teeth"] = "tooth";
     token_tag_map["food"] = "food";
     token_tag_map["discover"] = "discovery";
@@ -534,7 +534,7 @@ function setupLayout(csvs) {
     token_tag_map["eyes"] = "event";
     token_tag_map["first"] = "first";
     //token_tag_map["iversary"] = "celebration";
-    token_tag_map["sign"] = "sign";
+    token_tag_map["sign"] = "sign"; disambiguating_tag_map["sign"] = "signs";
     token_tag_map["say"] = "verbal";
     token_tag_map["said"] = "verbal";
     token_tag_map["hummed"] = "verbal";
